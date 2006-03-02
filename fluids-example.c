@@ -5,6 +5,8 @@
  * 'T' and 't' increases and decreases the simulation time step, respectively.
  */
 
+/* gcc -lglut -lrfftw -I/usr/include/GL -o fluids-example fluids-example.c */
+
 #include <math.h>
 #include <rfftw.h>
 #include <glut.h>
