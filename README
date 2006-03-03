@@ -1,32 +1,17 @@
 Flow visualization
 ==================
 
-This program is written in the beautiful Ruby programming language[1].
+To install the required libraries in Debian, run the following command:
 
-Software requirements:
-  - FFTW3 (redistributed with Debian)
-  - Ruby (> 1.8) (redistributed with Debian)
-  - libopengl-ruby (> 0.32f) (redistributed with Debian)
-  - NArray (0.5.8 redistributed with this package)
-  - Ruby-FFTW3 (0.2 redistributed with this package)
+  # aptitude install fftw3-dev freeglut3-dev
 
-To install the first three packages, run the following command:
+To build it:
 
-  # aptitude install fftw3 fftw3-dev ruby ruby-dev libopengl-ruby
-
-After this, unpack the two files narray-0.5.8.tar.gz and ruby-fftw3-0.2.tar.gz
-and for each resulting directory (first narray, only then ruby-fftw!), run:
-
-  $ ruby extconf.rb
   $ make
-  # make install
 
-You should now be able to run fluids.rb:
+To run it:
 
-  $ ruby fluids.rb
-
+  $ ./fluids
 
 Have fun!
 Christian
-
-[1]: http://www.ruby-lang.org/
