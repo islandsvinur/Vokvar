@@ -11,6 +11,14 @@
 
 #define max(x,y) ((x > y)?x:y)
 
+typedef enum {
+  VIZ_SMOKE = 0,
+  VIZ_VECTORS,
+  VIZ_STREAMLINES,
+  VIZ_ISOLINES,
+  VIZ_NRDRAWTYPES
+} Visualization_draw;
+
 typedef struct {
   int width;
   int height;
@@ -22,8 +30,7 @@ typedef struct {
   int color_dir;
   float vector_scale;
 
-  int draw_smoke;
-  int draw_vectors;
+  Visualization_draw draw;
 
   int scalar_coloring;
 

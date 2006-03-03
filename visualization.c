@@ -22,6 +22,11 @@ void _idle(void);
 void _keyboard(unsigned char key, int x, int y);
 void _drag(int mx, int my);
 
+void _draw_vectors(Visualization *v);
+void _draw_smoke(Visualization *v);
+void _draw_streamlines(Visualization *v);
+void _draw_isolines(Visualization *v);
+
 Visualization *
 new_visualization(int argc, char **argv, Simulation *s, int width, int height) {
   v = malloc(sizeof(Visualization));
@@ -37,8 +42,7 @@ new_visualization(int argc, char **argv, Simulation *s, int width, int height) {
   v->color_dir = 0;
   v->vector_scale = 1000;
 
-  v->draw_smoke = 1;
-  v->draw_vectors = 0;
+  v->draw = VIZ_SMOKE;
 
   v->scalar_coloring = 0;
 
@@ -76,62 +80,13 @@ visualization_stop(Visualization *v) {
 
 void
 visualization_draw_field(Visualization *v) {
-  Simulation *s = v->simulation;
-  int        i, j, idx; double px,py;
-  fftw_real  wn = (fftw_real)v->width / (fftw_real)(s->dimension + 1);   /* Grid element width */
-  fftw_real  hn = (fftw_real)v->height / (fftw_real)(s->dimension + 1);  /* Grid element height */
-
-  if (v->draw_smoke)
+  switch (v->draw)
   {
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  for (j = 0; j < s->dimension - 1; j++)     //draw smoke
-  {
-    glBegin(GL_TRIANGLE_STRIP);
-
-    i = 0;
-    px = wn + (fftw_real)i * wn;
-    py = hn + (fftw_real)j * hn;
-    idx = (j * s->dimension) + i;
-    glColor3f(s->rho[idx], s->rho[idx], s->rho[idx]);
-    glVertex2f(px, py);
-
-    for (i = 0; i < s->dimension - 1; i++)
-    {
-      px = wn + (fftw_real)i * wn;
-      py = hn + (fftw_real)(j + 1) * hn;
-      idx = ((j + 1) * s->dimension) + i;
-      _set_cpalet(v, s->rho[idx]);
-      glVertex2f(px, py);
-      px = wn + (fftw_real)(i + 1) * wn;
-      py = hn + (fftw_real)j * hn;
-      idx = (j * s->dimension) + (i + 1);
-      _set_cpalet(v, s->rho[idx]);
-      glVertex2f(px, py);
-    }
-
-    px = wn + (fftw_real)(s->dimension - 1) * wn;
-    py = hn + (fftw_real)(j + 1) * hn;
-    idx = ((j + 1) * s->dimension) + (s->dimension - 1);
-    _set_cpalet(v, s->rho[idx]);
-    glVertex2f(px, py);
-    glEnd();
+    case VIZ_SMOKE: _draw_smoke(v); break;
+    case VIZ_VECTORS: _draw_vectors(v); break;
+    case VIZ_STREAMLINES: _draw_streamlines(v); break;
+    case VIZ_ISOLINES: _draw_isolines(v); break;
   }
-  }
-
-  if (v->draw_vectors)
-  {
-  glBegin(GL_LINES);        //draw velocities
-  for (i = 0; i < s->dimension; i++)
-    for (j = 0; j < s->dimension; j++)
-    {
-    idx = (j * s->dimension) + i;
-    _set_color(s->u[idx], s->v[idx],v->color_dir);
-    glVertex2f(wn + (fftw_real)i * wn, hn + (fftw_real)j * hn);
-    glVertex2f((wn + (fftw_real)i * wn) + v->vector_scale * s->u[idx], (hn + (fftw_real)j * hn) + v->vector_scale * s->v[idx]);
-    }
-  glEnd();
-  }
-
 }
 
 
@@ -174,7 +129,7 @@ _set_color(float x, float y, int col) {
     r = f;
     if(r > 1) r = 2 - r;
     g = f + .66667;
-          if(g > 2) g -= 2;
+    if(g > 2) g -= 2;
     if(g > 1) g = 2 - g;
     b = f + 2 * .66667;
     if(b > 2) b -= 2;
@@ -233,11 +188,10 @@ _keyboard(unsigned char key, int x, int y) {
     case 's': v->vector_scale *= 0.8; break;
     case 'V': v->viscosity *= 5; break;
     case 'v': v->viscosity *= 0.2; break;
-    case 'x': v->draw_smoke = 1 - v->draw_smoke;
-        if (v->draw_smoke==0) v->draw_vectors = 1; break;
-    case 'y': v->draw_vectors = 1 - v->draw_vectors;
-        if (v->draw_vectors==0) v->draw_smoke = 1; break;
-    case 'm': v->scalar_coloring++; if (v->scalar_coloring==NUM_SCALAR_COL_METHODS) v->scalar_coloring=0; break;
+    case 'x': v->draw = (v->draw + 1) % VIZ_NRDRAWTYPES; break;
+    case 'X': v->draw = (v->draw - 1) % VIZ_NRDRAWTYPES; break;
+    case 'm': v->scalar_coloring++; 
+        if (v->scalar_coloring==NUM_SCALAR_COL_METHODS) v->scalar_coloring=0; break;
     case 'a': v->frozen = 1-v->frozen; break;
     case 'q': main_stop();
   }
@@ -267,3 +221,92 @@ _drag(int mx, int my) {
   lmx = mx; lmy = my;
 }
 
+
+/******************************************************************************
+                                 Draw functions
+******************************************************************************/
+
+
+void
+_draw_smoke(Visualization *v) {
+  int i, j, idx; double px, py;
+  Simulation *s = v->simulation;
+  /* Grid element sizes */
+  fftw_real  wn = (fftw_real)v->width / (fftw_real)(s->dimension + 1);
+  fftw_real  hn = (fftw_real)v->height / (fftw_real)(s->dimension + 1);
+
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  for (j = 0; j < s->dimension - 1; j++)
+  {
+    glBegin(GL_TRIANGLE_STRIP);
+
+    i = 0;
+    px = wn + (fftw_real)i * wn;
+    py = hn + (fftw_real)j * hn;
+    idx = (j * s->dimension) + i;
+    glColor3f(s->rho[idx], s->rho[idx], s->rho[idx]);
+    glVertex2f(px, py);
+
+    for (i = 0; i < s->dimension - 1; i++)
+    {
+      px = wn + (fftw_real)i * wn;
+      py = hn + (fftw_real)(j + 1) * hn;
+      idx = ((j + 1) * s->dimension) + i;
+      _set_cpalet(v, s->rho[idx]);
+      glVertex2f(px, py);
+      px = wn + (fftw_real)(i + 1) * wn;
+      py = hn + (fftw_real)j * hn;
+      idx = (j * s->dimension) + (i + 1);
+      _set_cpalet(v, s->rho[idx]);
+      glVertex2f(px, py);
+    }
+
+    px = wn + (fftw_real)(s->dimension - 1) * wn;
+    py = hn + (fftw_real)(j + 1) * hn;
+    idx = ((j + 1) * s->dimension) + (s->dimension - 1);
+    _set_cpalet(v, s->rho[idx]);
+    glVertex2f(px, py);
+    glEnd();
+  }
+}
+
+void
+_draw_vectors(Visualization *v) {
+  int i, j, idx;
+  Simulation *s = v->simulation;
+  /* Grid element sizes */
+  fftw_real  wn = (fftw_real)v->width / (fftw_real)(s->dimension + 1);
+  fftw_real  hn = (fftw_real)v->height / (fftw_real)(s->dimension + 1);
+
+  glBegin(GL_LINES);
+  for (i = 0; i < s->dimension; i++)
+  for (j = 0; j < s->dimension; j++) {
+    idx = (j * s->dimension) + i;
+    _set_color(s->u[idx], s->v[idx],v->color_dir);
+    glVertex2f(wn + (fftw_real)i * wn, 
+        hn + (fftw_real)j * hn);
+    glVertex2f((wn + (fftw_real)i * wn) + v->vector_scale * s->u[idx], 
+        (hn + (fftw_real)j * hn) + v->vector_scale * s->v[idx]);
+  }
+  glEnd();
+}
+
+void
+_draw_streamlines(Visualization *v) {
+  glBegin(GL_POLYGON);
+  glVertex2f(10, 10);
+  glVertex2f(10, v->height - 10);
+  glVertex2f(v->width - 10, v->height - 10);
+  glVertex2f(v->width - 10, 10);
+  glEnd();
+}
+
+void
+_draw_isolines(Visualization *v) {
+  glBegin(GL_POLYGON);
+  glVertex2f(100, 100);
+  glVertex2f(100, v->height - 100);
+  glVertex2f(v->width - 100, v->height - 100);
+  glVertex2f(v->width - 100, 100);
+  glEnd();
+}
