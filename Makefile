@@ -1,13 +1,13 @@
 
 CC=gcc
-CFLAGS=-I.
+CFLAGS=-Wall -I. -I/usr/include/GL
 
 LDIR =../lib
 
-LIBS=-lm
+LIBS=-lm -lrfftw -lglut
 
-DEPS = simulation.h
-OBJ = simulation.o main.o
+DEPS = visualization.h simulation.h main.h
+OBJ = visualization.o simulation.o main.o
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
