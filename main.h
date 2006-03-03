@@ -25,4 +25,6 @@ typedef struct {
   Visualization *visualization;
 } State;
 
+void main_stop(void);
+
 #endif /* MAIN_H */

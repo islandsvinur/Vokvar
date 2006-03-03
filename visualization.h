@@ -27,6 +27,8 @@ typedef struct {
 
   int scalar_coloring;
 
+  int main_window;
+
   Simulation *simulation;
 } Visualization;
 

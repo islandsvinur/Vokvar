@@ -4,10 +4,23 @@
 
 #include "main.h"
 #include "simulation.h"
+#include "visualization.h"
 
 #define DIM 50
 
 State *state;
+
+void 
+main_stop(void) {
+  visualization_stop(state->visualization);
+  /* simulation_stop(state->simulation); */
+
+  visualization_destroy(state->visualization);
+  simulation_destroy(state->simulation);
+  free(state);
+
+  exit(0);
+}
 
 int
 main(int argc, char **argv) {
@@ -29,4 +42,3 @@ main(int argc, char **argv) {
 
   return 0;
 }
-

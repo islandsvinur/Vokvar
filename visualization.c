@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <glut.h>
 #include <assert.h>
 #include <math.h>
@@ -28,23 +29,31 @@ new_visualization(int argc, char **argv, Simulation *s, int width, int height) {
 
   v->width = width;
   v->height = height;
+
   v->frozen = 0;
   v->viscosity = 0.001;
   v->timestep = 0.4;
-  v->simulation = s;
+
   v->color_dir = 0;
   v->vector_scale = 1000;
+
+  v->draw_smoke = 1;
+  v->draw_vectors = 0;
+
+  v->scalar_coloring = 0;
+
+  v->simulation = s;
 
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
   glutInitWindowSize(width, height);
-  glutCreateWindow("Real-time wispy smoke");
+  v->main_window = glutCreateWindow("Real-time wispy smoke");
+
   glutDisplayFunc(_display);
   glutReshapeFunc(_reshape);
   glutIdleFunc(_idle);
   glutKeyboardFunc(_keyboard);
   glutMotionFunc(_drag);
-
 
   return v;
 }
@@ -61,6 +70,8 @@ visualization_start(Visualization *v) {
 
 void 
 visualization_stop(Visualization *v) {
+  v->frozen = 1;
+  glutDestroyWindow(v->main_window);
 }
 
 void
@@ -228,7 +239,7 @@ _keyboard(unsigned char key, int x, int y) {
         if (v->draw_vectors==0) v->draw_smoke = 1; break;
     case 'm': v->scalar_coloring++; if (v->scalar_coloring==NUM_SCALAR_COL_METHODS) v->scalar_coloring=0; break;
     case 'a': v->frozen = 1-v->frozen; break;
-    case 'q': exit(0);
+    case 'q': main_stop();
   }
 }
 
