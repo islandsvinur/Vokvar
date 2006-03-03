@@ -1,24 +1,22 @@
 
-CC=gcc
-CFLAGS=-Wall -I. -I/usr/include/GL
+CC = gcc
+CFLAGS = -Wall -I/usr/include/GL
 
-LDIR =../lib
-
-LIBS=-lm -lrfftw -lglut
+LIBS = -lm -lrfftw -lglut
 
 DEPS = visualization.h simulation.h main.h
-OBJ = visualization.o simulation.o main.o
+OBJS = visualization.o simulation.o main.o
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-fluids: $(OBJ)
+fluids: $(OBJS)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 .PHONY: clean
 
 clean:
-	rm -f *.o *~ core
+	rm -f *.o
 
 distclean: clean
 	rm fluids
