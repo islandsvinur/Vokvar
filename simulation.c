@@ -6,6 +6,7 @@
 #include <rfftw.h>
 
 #include "simulation.h"
+#include "vector.h"
 
 Simulation *
 new_simulation(int32_t dimension) {
@@ -151,3 +152,24 @@ simulation_diffuse_matter(Simulation *s, fftw_real dt) {
   }
 }
 
+Vector *
+simulation_interpolate(Simulation *s, Vector *v) {
+  int x_low = floor(v->x); int y_low = floor(v->y);
+  int x_high = ceil(v->x); int y_high = ceil(v->y);
+
+  assert(x_low == x_high || x_low + 1 == x_high);
+  assert(y_low == y_high || y_low + 1 == y_high);
+
+  SDEBUG("%f %f %f %f", s->u[x_low], s->u[x_high], s->v[y_low], s->v[y_high]);
+
+  float ratio;
+  float result_x, result_y;
+
+  /* Linear interpolation */
+  ratio = v->x - x_low;
+  result_x = ratio * s->u[x_low] + (1 - ratio) * s->u[x_high];
+  ratio = v->y - y_high;
+  result_y = ratio * s->v[y_low] + (1 - ratio) * s->v[y_high];
+  
+  return new_vector(result_x, result_y);
+}

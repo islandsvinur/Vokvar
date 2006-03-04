@@ -6,7 +6,8 @@
 #include <assert.h>
 #include <math.h>
 
-#include "main.h"
+#include "global.h"
+
 #include "visualization.h"
 #include "simulation.h"
 
@@ -37,7 +38,7 @@ new_visualization(int argc, char **argv, Simulation *s, int width, int height) {
 
   v->frozen = 0;
   v->viscosity = 0.001;
-  v->timestep = 0.4;
+  v->timestep = 0.2;
 
   v->color_dir = 0;
   v->vector_scale = 1000;
@@ -80,6 +81,9 @@ visualization_stop(Visualization *v) {
 
 void
 visualization_draw_field(Visualization *v) {
+  /* _draw_vectors(v);
+  _draw_streamlines(v); */
+
   switch (v->draw)
   {
     case VIZ_SMOKE: _draw_smoke(v); break;
@@ -278,6 +282,7 @@ _draw_vectors(Visualization *v) {
   fftw_real  wn = (fftw_real)v->width / (fftw_real)(s->dimension + 1);
   fftw_real  hn = (fftw_real)v->height / (fftw_real)(s->dimension + 1);
 
+  glLineWidth(1);
   glBegin(GL_LINES);
   for (i = 0; i < s->dimension; i++)
   for (j = 0; j < s->dimension; j++) {
@@ -293,11 +298,36 @@ _draw_vectors(Visualization *v) {
 
 void
 _draw_streamlines(Visualization *v) {
-  glBegin(GL_POLYGON);
-  glVertex2f(10, 10);
-  glVertex2f(10, v->height - 10);
-  glVertex2f(v->width - 10, v->height - 10);
-  glVertex2f(v->width - 10, 10);
+  Vector *x0; /* Current location */
+  Vector *x1; /* Next location */
+  Vector *v0; /* Velocity at current location */
+  Vector *v0_dt; /* Distance vector */
+  int i, length = 100;
+  Simulation *s = v->simulation;
+
+  glLineWidth(3);
+  glBegin(GL_LINE_STRIP);
+  x0 = new_vector(25, 25);
+  glVertex2f(
+      x0->x * (v->width / s->dimension), 
+      x0->y * (v->height / s->dimension));
+  for ( i=0; i<length; i++ ) {
+    v0 = simulation_interpolate(s, x0);
+    /* Euler's numerical integration method */
+    v0_dt = vector_scal_mul(v0, 1000);
+    x1 = vector_add(x0, v0_dt);
+
+    del_vector(v0);
+    del_vector(v0_dt);
+    del_vector(x0);
+    x0 = x1;
+
+    glVertex2f(
+        x1->x * (v->width / s->dimension), 
+        x1->y * (v->height / s->dimension));
+  }
+  del_vector(x0);
+
   glEnd();
 }
 

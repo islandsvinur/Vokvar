@@ -4,8 +4,8 @@ CFLAGS = -Wall -I/usr/include/GL
 
 LIBS = -lm -lrfftw -lglut
 
-DEPS = visualization.h simulation.h main.h
-OBJS = visualization.o simulation.o main.o
+DEPS = global.h vector.h visualization.h simulation.h main.h
+OBJS = vector.o visualization.o simulation.o main.o
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)

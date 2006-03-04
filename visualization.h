@@ -3,10 +3,13 @@
 
 #include <glut.h>
 
+#include "global.h"
+
+#define VDEBUG(...) DEBUG("visualization", __VA_ARGS__)
+
 #include "main.h"
 #include "simulation.h"
 
-#define VDEBUG(...) DEBUG("visualization", __VA_ARGS__)
 #define NUM_SCALAR_COL_METHODS 7
 
 #define max(x,y) ((x > y)?x:y)

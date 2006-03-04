@@ -8,37 +8,26 @@
 
 #define DIM 50
 
-State *state;
+Visualization *visualization;
+Simulation *simulation;
 
 void 
 main_stop(void) {
-  visualization_stop(state->visualization);
-  /* simulation_stop(state->simulation); */
+  visualization_stop(visualization);
+  /* simulation_stop(simulation); */
 
-  visualization_destroy(state->visualization);
-  simulation_destroy(state->simulation);
-  free(state);
+  visualization_destroy(visualization);
+  simulation_destroy(simulation);
 
   exit(0);
 }
 
 int
 main(int argc, char **argv) {
-  state = malloc(sizeof(State));
-  state->dt = 0.4;
-  state->color_dir = 0;
-  state->vec_scale = 1000;
-  state->visc = 0.001;
-  state->draw_smoke = 0;
-  state->draw_vecs = 1;
-  state->scalar_col = 0;
-  state->frozen = 0;
+  simulation = new_simulation(DIM);
+  visualization = new_visualization(argc, argv, simulation, 500, 500);
 
-  state->simulation = new_simulation(DIM);
-  state->visualization = new_visualization(argc, argv, 
-      state->simulation, 500, 500);
-
-  visualization_start(state->visualization);
+  visualization_start(visualization);
 
   return 0;
 }
