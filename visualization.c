@@ -28,6 +28,8 @@ void _draw_smoke(Visualization *v);
 void _draw_streamlines(Visualization *v);
 void _draw_isolines(Visualization *v);
 
+void _draw_streamline(Visualization *v, Vector *start);
+
 Visualization *
 new_visualization(int argc, char **argv, Simulation *s, int width, int height) {
   v = malloc(sizeof(Visualization));
@@ -81,8 +83,6 @@ visualization_stop(Visualization *v) {
 
 void
 visualization_draw_field(Visualization *v) {
-  /* _draw_vectors(v);
-  _draw_streamlines(v); */
 
   switch (v->draw)
   {
@@ -205,6 +205,7 @@ void
 _drag(int mx, int my) {
   int xi,yi,X,Y; double  dx, dy, len;
   static int lmx=0,lmy=0;       //remembers last mouse location
+  /* VDEBUG("%i %i", mx, my); */
 
   // Compute the array index that corresponds to the cursor location
   xi = (int)floor((double)(v->simulation->dimension + 1) * ((double)mx / (double)v->width));
@@ -296,39 +297,16 @@ _draw_vectors(Visualization *v) {
   glEnd();
 }
 
+#define DRAW_POINT_AND_FREE(point) do { glVertex2f(point->x, point->y); \
+                                        del_vector(point); } while (0)
+
 void
 _draw_streamlines(Visualization *v) {
-  Vector *x0; /* Current location */
-  Vector *x1; /* Next location */
-  Vector *v0; /* Velocity at current location */
-  Vector *v0_dt; /* Distance vector */
-  int i, length = 100;
-  Simulation *s = v->simulation;
-
-  glLineWidth(3);
-  glBegin(GL_LINE_STRIP);
-  x0 = new_vector(25, 25);
-  glVertex2f(
-      x0->x * (v->width / s->dimension), 
-      x0->y * (v->height / s->dimension));
-  for ( i=0; i<length; i++ ) {
-    v0 = simulation_interpolate(s, x0);
-    /* Euler's numerical integration method */
-    v0_dt = vector_scal_mul(v0, 1000);
-    x1 = vector_add(x0, v0_dt);
-
-    del_vector(v0);
-    del_vector(v0_dt);
-    del_vector(x0);
-    x0 = x1;
-
-    glVertex2f(
-        x1->x * (v->width / s->dimension), 
-        x1->y * (v->height / s->dimension));
-  }
-  del_vector(x0);
-
-  glEnd();
+  _draw_streamline(v, new_vector(12, 12));
+  _draw_streamline(v, new_vector(37, 12));
+  _draw_streamline(v, new_vector(25, 25));
+  _draw_streamline(v, new_vector(12, 37));
+  _draw_streamline(v, new_vector(37, 37));
 }
 
 void
@@ -338,5 +316,44 @@ _draw_isolines(Visualization *v) {
   glVertex2f(100, v->height - 100);
   glVertex2f(v->width - 100, v->height - 100);
   glVertex2f(v->width - 100, 100);
+  glEnd();
+}
+
+void
+_draw_streamline(Visualization *v, Vector *start) {
+  Vector *x0 = start; /* Current location */
+  Vector *x1; /* Next location */
+  Vector *v0; /* Velocity at current location */
+  Vector *v0_dt; /* Distance vector */
+  Vector *point;
+  int i, length = 1000;
+  Simulation *s = v->simulation;
+  Vector *ratio = new_vector(v->width / s->dimension, 
+                             v->height / s->dimension);
+
+  glLineWidth(3);
+  glBegin(GL_LINE_STRIP);
+  point = vector_mul(start, ratio);
+  DRAW_POINT_AND_FREE(point);
+
+  for ( i=0; i<length; i++ ) {
+    v0 = simulation_interpolate(s, x0);
+    /* VDEBUG("%f %f", x0->x, x0->y); */
+    _set_color(v0->x, v0->y, v->color_dir);
+    /* Euler's numerical integration method */
+    v0_dt = vector_scal_mul(v0, 10);
+    x1 = vector_add(x0, v0_dt);
+
+    del_vector(v0);
+    del_vector(v0_dt);
+    del_vector(x0);
+    x0 = x1;
+
+    point = vector_mul(x1, ratio);
+    DRAW_POINT_AND_FREE(point);
+  }
+  del_vector(x0);
+  del_vector(ratio);
+
   glEnd();
 }

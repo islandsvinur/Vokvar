@@ -154,22 +154,18 @@ simulation_diffuse_matter(Simulation *s, fftw_real dt) {
 
 Vector *
 simulation_interpolate(Simulation *s, Vector *v) {
-  int x_low = floor(v->x); int y_low = floor(v->y);
-  int x_high = ceil(v->x); int y_high = ceil(v->y);
+  int x = floor(v->x); int y = floor(v->y);
 
-  assert(x_low == x_high || x_low + 1 == x_high);
-  assert(y_low == y_high || y_low + 1 == y_high);
-
-  SDEBUG("%f %f %f %f", s->u[x_low], s->u[x_high], s->v[y_low], s->v[y_high]);
+  /* SDEBUG("%i %i %i %i", x_low, x_high, y_low, y_high); */
 
   float ratio;
-  float result_x, result_y;
+  float result_u, result_v;
 
   /* Linear interpolation */
-  ratio = v->x - x_low;
-  result_x = ratio * s->u[x_low] + (1 - ratio) * s->u[x_high];
-  ratio = v->y - y_high;
-  result_y = ratio * s->v[y_low] + (1 - ratio) * s->v[y_high];
+  ratio = v->x - x;
+  result_u = ratio * s->u[x * s->dimension + y] + (1 - ratio) * s->u[x * s->dimension + y + 1];
+  ratio = v->y - y;
+  result_v = ratio * s->v[x * s->dimension + y] + (1 - ratio) * s->v[x * s->dimension + y + 1];
   
-  return new_vector(result_x, result_y);
+  return new_vector(result_u, result_v);
 }
