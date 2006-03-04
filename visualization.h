@@ -10,16 +10,16 @@
 #include "main.h"
 #include "simulation.h"
 
-#define NUM_SCALAR_COL_METHODS 7
+#define NUM_SCALAR_COL_METHODS 3
 
 #define max(x,y) ((x > y)?x:y)
 
 typedef enum {
-  VIZ_SMOKE = 0,
-  VIZ_VECTORS,
-  VIZ_STREAMLINES,
-  VIZ_ISOLINES,
-  VIZ_NRDRAWTYPES
+  VIZ_NONE = 0,
+  VIZ_SMOKE = 1,
+  VIZ_VECTORS = 2,
+  VIZ_STREAMLINES = 4,
+  VIZ_ISOLINES = 8
 } Visualization_draw;
 
 typedef struct {

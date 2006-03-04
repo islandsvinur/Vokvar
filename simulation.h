@@ -26,6 +26,7 @@ void simulation_destroy(Simulation *s);
 void simulation_set_forces(Simulation *s);
 void simulation_stable_solve(Simulation *s, fftw_real viscosity, fftw_real dt);
 void simulation_diffuse_matter(Simulation *s, fftw_real dt);
-Vector *simulation_interpolate(Simulation *s, Vector *v);
+Vector *simulation_interpolate_speed(Simulation *s, Vector *v);
+float *simulation_interpolate_density(Simulation *s, Vector *v);
 
 #endif /* SIMULATION_H */

@@ -153,7 +153,7 @@ simulation_diffuse_matter(Simulation *s, fftw_real dt) {
 }
 
 Vector *
-simulation_interpolate(Simulation *s, Vector *v) {
+simulation_interpolate_speed(Simulation *s, Vector *v) {
   int x = floor(v->x); int y = floor(v->y);
 
   /* SDEBUG("%i %i %i %i", x_low, x_high, y_low, y_high); */

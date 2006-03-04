@@ -29,6 +29,7 @@ void _draw_streamlines(Visualization *v);
 void _draw_isolines(Visualization *v);
 
 void _draw_streamline(Visualization *v, Vector *start);
+void _draw_isoline(Visualization *v, Vector *start);
 
 Visualization *
 new_visualization(int argc, char **argv, Simulation *s, int width, int height) {
@@ -45,7 +46,7 @@ new_visualization(int argc, char **argv, Simulation *s, int width, int height) {
   v->color_dir = 0;
   v->vector_scale = 1000;
 
-  v->draw = VIZ_SMOKE;
+  v->draw = VIZ_SMOKE | VIZ_STREAMLINES;
 
   v->scalar_coloring = 0;
 
@@ -83,14 +84,10 @@ visualization_stop(Visualization *v) {
 
 void
 visualization_draw_field(Visualization *v) {
-
-  switch (v->draw)
-  {
-    case VIZ_SMOKE: _draw_smoke(v); break;
-    case VIZ_VECTORS: _draw_vectors(v); break;
-    case VIZ_STREAMLINES: _draw_streamlines(v); break;
-    case VIZ_ISOLINES: _draw_isolines(v); break;
-  }
+  if (v->draw & VIZ_SMOKE)        _draw_smoke(v);
+  if (v->draw & VIZ_VECTORS)      _draw_vectors(v);
+  if (v->draw & VIZ_STREAMLINES)  _draw_streamlines(v);
+  if (v->draw & VIZ_ISOLINES)     _draw_isolines(v);
 }
 
 
@@ -185,18 +182,52 @@ void
 _keyboard(unsigned char key, int x, int y) {
   switch (key)
   {
-    case 't': v->timestep -= 0.001; break;
-    case 'T': v->timestep += 0.001; break;
+    /* Timestep */
+    case 't': v->timestep -= 0.001; 
+              printf("Time step: %f\n", v->timestep); break;
+    case 'T': v->timestep += 0.001; 
+              printf("Time step: %f\n", v->timestep); break;
+
+    /* Whether to colorize the vectors according to their direction */
     case 'c': v->color_dir = 1 - v->color_dir; break;
-    case 'S': v->vector_scale *= 1.2; break;
-    case 's': v->vector_scale *= 0.8; break;
-    case 'V': v->viscosity *= 5; break;
-    case 'v': v->viscosity *= 0.2; break;
-    case 'x': v->draw = (v->draw + 1) % VIZ_NRDRAWTYPES; break;
-    case 'X': v->draw = (v->draw - 1) % VIZ_NRDRAWTYPES; break;
-    case 'm': v->scalar_coloring++; 
-        if (v->scalar_coloring==NUM_SCALAR_COL_METHODS) v->scalar_coloring=0; break;
-    case 'a': v->frozen = 1-v->frozen; break;
+
+    /* Scale of vectors and streamlines */
+    case 'S': v->vector_scale *= 1.2; 
+              printf("Vector scale: %f\n", v->vector_scale); break;
+    case 's': v->vector_scale *= 0.8; 
+              printf("Vector scale: %f\n", v->vector_scale); break;
+
+    /* Viscosity of the fluid */
+    case 'V': v->viscosity *= 5; 
+              printf("Viscosity: %f\n", v->viscosity); break;
+    case 'v': v->viscosity *= 0.2; 
+              printf("Viscosity: %f\n", v->viscosity); break;
+
+    /* Visualizations to draw */
+    case '1': if (v->draw & VIZ_SMOKE)        v->draw -= VIZ_SMOKE; 
+                else v->draw += VIZ_SMOKE;        
+              break;
+    case '2': if (v->draw & VIZ_VECTORS)      v->draw -= VIZ_VECTORS; 
+                else v->draw += VIZ_VECTORS;      
+              break;
+    case '3': if (v->draw & VIZ_STREAMLINES)  v->draw -= VIZ_STREAMLINES; 
+                else v->draw += VIZ_STREAMLINES;  
+              break;
+    case '4': if (v->draw & VIZ_ISOLINES)     v->draw -= VIZ_ISOLINES; 
+                else v->draw += VIZ_ISOLINES;     
+              break;
+
+    /* Change palette */
+    case 'p': v->scalar_coloring++; 
+              if (v->scalar_coloring==NUM_SCALAR_COL_METHODS) 
+                v->scalar_coloring=0; 
+              break;
+
+    /* Freeze animation (and simulation) */
+    case 'a': v->frozen = 1-v->frozen; 
+              printf("Frozen: %i\n", v->frozen); break;
+
+    /* Quit */
     case 'q': main_stop();
   }
 }
@@ -311,12 +342,13 @@ _draw_streamlines(Visualization *v) {
 
 void
 _draw_isolines(Visualization *v) {
-  glBegin(GL_POLYGON);
+  _draw_isoline(v, new_vector(25, 25));
+  /*glBegin(GL_POLYGON);
   glVertex2f(100, 100);
   glVertex2f(100, v->height - 100);
   glVertex2f(v->width - 100, v->height - 100);
   glVertex2f(v->width - 100, 100);
-  glEnd();
+  glEnd();*/
 }
 
 void
@@ -326,7 +358,9 @@ _draw_streamline(Visualization *v, Vector *start) {
   Vector *v0; /* Velocity at current location */
   Vector *v0_dt; /* Distance vector */
   Vector *point;
-  int i, length = 1000;
+  int i; 
+  
+  int length = v->vector_scale / 10;
   Simulation *s = v->simulation;
   Vector *ratio = new_vector(v->width / s->dimension, 
                              v->height / s->dimension);
@@ -337,9 +371,11 @@ _draw_streamline(Visualization *v, Vector *start) {
   DRAW_POINT_AND_FREE(point);
 
   for ( i=0; i<length; i++ ) {
-    v0 = simulation_interpolate(s, x0);
+    v0 = simulation_interpolate_speed(s, x0);
     /* VDEBUG("%f %f", x0->x, x0->y); */
-    _set_color(v0->x, v0->y, v->color_dir);
+    /* _set_color(v0->x, v0->y, v->color_dir); */
+    /* glColor3f(s->rho[idx], s->rho[idx], s->rho[idx]); */
+    _set_cpalet(v, (1-(float)i/length));
     /* Euler's numerical integration method */
     v0_dt = vector_scal_mul(v0, 10);
     x1 = vector_add(x0, v0_dt);
@@ -354,6 +390,58 @@ _draw_streamline(Visualization *v, Vector *start) {
   }
   del_vector(x0);
   del_vector(ratio);
+
+  glEnd();
+}
+
+void
+_draw_isoline(Visualization *v, Vector *start) {
+  Simulation *s = v->simulation;
+  Vector *r[8];
+  int dim = s->dimension, i;
+  Vector *point = start;
+  float p, q;
+  float ratio1, ratio2;
+  float isovalue = s->rho[(int)((point->x * dim) + point->y)];
+
+  Vector *ratio = new_vector(v->width / s->dimension, 
+                             v->height / s->dimension);
+
+  _set_cpalet(v, 1);
+  glBegin(GL_LINE_STRIP);
+  
+  r[0] = new_vector(point->x - 1, point->y - 1);
+  r[1] = new_vector(point->x - 1, point->y);
+  r[2] = new_vector(point->x - 1, point->y + 1);
+  r[3] = new_vector(point->x,     point->y + 1);
+  r[4] = new_vector(point->x,     point->y - 1);
+  r[5] = new_vector(point->x + 1, point->y);
+  r[6] = new_vector(point->x + 1, point->y + 1);
+  r[7] = new_vector(point->x,     point->y - 1);
+
+  /*DRAW_POINT_AND_FREE(point); */
+  glVertex2f(point->x * ratio->x, point->y * ratio->y);
+
+  for ( i=0; i<8; i++ ) {
+    p = s->rho[(int)r[i]->x] * dim + s->rho[(int)r[i]->y]; 
+    q = s->rho[(int)r[(i+1)%8]->x] * dim + s->rho[(int)r[(i+1)%8]->y];
+    if (p >= isovalue && isovalue >= q) {
+      if (i == 0 || i == 1 || i == 4 || i == 5) {
+        ratio1 = (p - isovalue) / (p - q);
+        ratio2 = 0;
+      } else {
+        ratio1 = 0;
+        ratio2 = (p - isovalue) / (p - q);
+      }
+      point = new_vector(r[i]->x + ratio1, r[(i+1)%8]->y + ratio2);
+    }
+  }
+
+  free(r[0]); free(r[1]); free(r[2]); free(r[3]); 
+  free(r[4]); free(r[5]); free(r[6]); free(r[7]); 
+
+  /* DRAW_POINT_AND_FREE(point); */
+  glVertex2f(point->x * ratio->x, point->y * ratio->y);
 
   glEnd();
 }
