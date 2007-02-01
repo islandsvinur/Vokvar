@@ -2,7 +2,7 @@
 CC = gcc
 CFLAGS = -Wall -I/usr/include/GL
 
-LIBS = -lm -lrfftw -lglut
+LIBS = -lm -lfftw -lrfftw -lglut
 
 DEPS = global.h vector.h visualization.h simulation.h main.h
 OBJS = vector.o visualization.o simulation.o main.o
