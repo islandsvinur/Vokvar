@@ -1,15 +1,13 @@
 
-/* $Id: vector.c,v 1.9 2003/05/28 23:03:26 cluijten Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <string.h>
 #include <math.h>
 
 #include "vector.h"
 
 Vector *
-new_vector(int32_t x, int32_t y) {
+new_vector(float x, float y) {
   Vector *v;
  
   v = malloc(sizeof(Vector));

@@ -11,15 +11,15 @@
  * Simple vector typing representing a (X, Y) tuple.
  */
 typedef struct {
-  int32_t x; /**< X coordinate */
-  int32_t y; /**< Y coordinate */
+  float x; /**< X coordinate */
+  float y; /**< Y coordinate */
 } Vector;
 
 /** Creates a vector.
   * \param x X coordinate
   * \param y Y coordinate
   */
-Vector * new_vector(int32_t x, int32_t y);
+Vector * new_vector(float x, float y);
 
 /** Destroys a vector.
   * \param v Pointer to vector to be destroyed.
