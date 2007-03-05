@@ -7,7 +7,7 @@ CFLAGS = -Wall
 FRAMEWORK = -framework GLUT
 FRAMEWORK += -framework OpenGL
 
-INCLUDE = -I$(FFTW_BASE)/include
+INCLUDE = -I$(FFTW_BASE)/include -I"/System/Library/Frameworks/GLUT.framework/Headers"
 
 LIBPATH += -L$(FFTW_BASE)/lib
 LIBS =  -lm -lfftw -lrfftw

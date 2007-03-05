@@ -1,11 +1,7 @@
 #ifndef VISUALIZATION_H
 #define VISUALIZATION_H
 
-#if defined(_LINUX)
 #include <glut.h>
-#else
-#include <GLUT/glut.h>
-#endif
 
 #include "global.h"
 
