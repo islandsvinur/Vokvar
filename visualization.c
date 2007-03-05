@@ -2,7 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#if defined(_LINUX)
 #include <glut.h>
+#else
+#include <GLUT/glut.h>
+#endif
 #include <assert.h>
 #include <math.h>
 

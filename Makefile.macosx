@@ -1,0 +1,30 @@
+
+FFTW_BASE = /sw
+
+CC = gcc
+CFLAGS = -Wall
+
+FRAMEWORK = -framework GLUT
+FRAMEWORK += -framework OpenGL
+
+INCLUDE = -I$(FFTW_BASE)/include
+
+LIBPATH += -L$(FFTW_BASE)/lib
+LIBS =  -lm -lfftw -lrfftw
+
+DEPS = vector.h visualization.h simulation.h main.h global.h
+OBJS = vector.o visualization.o simulation.o main.o
+
+%.o: %.c $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS) $(INCLUDE)
+
+fluids: $(OBJS)
+	$(CC) -o $@ $^ $(FRAMEWORK) $(CFLAGS) $(LIBPATH) $(LIBS)
+
+.PHONY: clean
+
+clean:
+	rm -f *.o
+
+distclean: clean
+	rm fluids
