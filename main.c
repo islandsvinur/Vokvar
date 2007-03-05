@@ -6,7 +6,7 @@
 #include "simulation.h"
 #include "visualization.h"
 
-#define DIM 50
+#define DIM 76
 
 Visualization *visualization;
 Simulation *simulation;

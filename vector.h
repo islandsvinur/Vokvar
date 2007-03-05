@@ -55,4 +55,12 @@ Vector * vector_mul(Vector *v1, Vector *v2);
  */
 Vector * vector_add(Vector *v1, Vector *v2);
 
+/** Vector normailization
+ * \param v Pointer to vector to be normalized (in place)
+ * \param dimension Maximal value to which the vector shall be normalized (> 0)
+ * 
+ * Returns true if vector changed, false otherwise
+ */
+int vector_normalize(Vector *v, int dimension);
+
 #endif /* VECTOR_H  */

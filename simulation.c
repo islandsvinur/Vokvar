@@ -156,16 +156,14 @@ Vector *
 simulation_interpolate_speed(Simulation *s, Vector *v) {
   int x = floor(v->x); int y = floor(v->y);
 
-  /* SDEBUG("%i %i %i %i", x_low, x_high, y_low, y_high); */
-
   float ratio;
   float result_u, result_v;
 
   /* Linear interpolation */
   ratio = v->x - x;
-  result_u = ratio * s->u[x * s->dimension + y] + (1 - ratio) * s->u[x * s->dimension + y + 1];
+  result_u = ratio * s->u[y * s->dimension + x] + (1 - ratio) * s->u[y * s->dimension + x + 1];
   ratio = v->y - y;
-  result_v = ratio * s->v[x * s->dimension + y] + (1 - ratio) * s->v[x * s->dimension + y + 1];
+  result_v = ratio * s->v[y * s->dimension + x] + (1 - ratio) * s->v[y * s->dimension + x + 1];
   
   return new_vector(result_u, result_v);
 }

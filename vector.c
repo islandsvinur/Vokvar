@@ -62,3 +62,18 @@ Vector * vector_add(Vector *v1, Vector *v2) {
 	return new_vector(v1->x + v2->x, v1->y + v2->y);
 }
 
+int vector_normalize(Vector *v, int dimension) {
+  Vector *cp = copy_vector(v);
+
+  while (v->x > dimension) v->x -= dimension;
+  while (v->x < 0) v->x += dimension;
+  while (v->y > dimension) v->y -= dimension;
+  while (v->y < 0) v->y += dimension;
+
+  int result = (cp->x != v->x || cp->y != v->y);
+
+  free(cp);
+
+  return result;
+}
+

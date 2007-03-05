@@ -10,16 +10,19 @@ FRAMEWORK += -framework OpenGL
 INCLUDE = -I$(FFTW_BASE)/include -I"/System/Library/Frameworks/GLUT.framework/Headers"
 
 LIBPATH += -L$(FFTW_BASE)/lib
-LIBS =  -lm -lfftw -lrfftw
+LIBS = -lfftw -lrfftw -lm
+LIBS = -lm
 
 DEPS = vector.h visualization.h simulation.h main.h global.h
-OBJS = vector.o visualization.o simulation.o main.o
+OBJS = vector.o visualization.o simulation.o main.o 
+
+FFTW_STATIC = $(FFTW_BASE)/lib/libdrfftw.a $(FFTW_BASE)/lib/libdfftw.a $(FFTW_BASE)/lib/libsrfftw.a $(FFTW_BASE)/lib/libsfftw.a
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(INCLUDE)
 
 fluids: $(OBJS)
-	$(CC) -o $@ $^ $(FRAMEWORK) $(CFLAGS) $(LIBPATH) $(LIBS)
+	$(CC) -o $@ $^ $(FFTW_STATIC) $(FRAMEWORK) $(CFLAGS) $(LIBPATH) $(LIBS) 
 
 .PHONY: clean
 

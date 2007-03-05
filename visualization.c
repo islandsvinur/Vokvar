@@ -334,9 +334,11 @@ _draw_vectors(Visualization *v) {
 void
 _draw_streamlines(Visualization *v) {
   _draw_streamline(v, new_vector(12, 12));
+  _draw_streamline(v, new_vector(25, 12));
   _draw_streamline(v, new_vector(37, 12));
   _draw_streamline(v, new_vector(25, 25));
   _draw_streamline(v, new_vector(12, 37));
+  _draw_streamline(v, new_vector(25, 37));
   _draw_streamline(v, new_vector(37, 37));
 }
 
@@ -360,7 +362,7 @@ _draw_streamline(Visualization *v, Vector *start) {
   Vector *point;
   int i; 
   
-  int length = v->vector_scale / 10;
+  int length = v->vector_scale;
   Simulation *s = v->simulation;
   Vector *ratio = new_vector(v->width / s->dimension, 
                              v->height / s->dimension);
@@ -387,6 +389,13 @@ _draw_streamline(Visualization *v, Vector *start) {
 
     point = vector_mul(x1, ratio);
     DRAW_POINT_AND_FREE(point);
+    /* Now check whether the point is outside the viewport to start a new line
+     * piece */
+    if (vector_normalize(x1, s->dimension)) {
+      point = vector_mul(x1, ratio);
+      glEnd(); glBegin(GL_LINE_STRIP);
+      DRAW_POINT_AND_FREE(point);
+    }
   }
   del_vector(x0);
   del_vector(ratio);
