@@ -1,6 +1,8 @@
 
 FFTW_BASE = /sw
 
+INSTALL = /usr/bin/install
+
 CC = gcc
 CFLAGS = -Wall
 
@@ -15,20 +17,19 @@ LIBS = -lfftw -lrfftw -lm
 DEPS = vector.h visualization.h simulation.h main.h global.h
 OBJS = vector.o visualization.o simulation.o main.o 
 
-FFTW_DYNAMIC = 
-
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(INCLUDE)
 
-fluids: $(OBJS)
-	$(CC) -o $@ $^ $(FRAMEWORK) $(CFLAGS) $(LIBPATH) $(LIBS) 
+Fluids.zip: Fluids.app
+	zip -r Fluids.zip Fluids.app
 
 Fluids.app: fluids
-	mkdir -p Fluids.app/Contents/Frameworks
-	mkdir -p Fluids.app/Contents/MacOS
-	cp $< \
-		Fluids.app/Contents/MacOS
-	cp $(FFTW_BASE)/lib/libdfftw.2.dylib $(FFTW_BASE)/lib/libdrfftw.2.dylib \
+	$(INSTALL) -d Fluids.app/Contents/Frameworks
+	$(INSTALL) -d Fluids.app/Contents/MacOS
+	$(INSTALL) -d Fluids.app/Source
+	$(INSTALL) $< Fluids.app/Contents/MacOS
+	$(INSTALL) -m 644 Makefile *.c *.h Fluids.app/Source
+	$(INSTALL) $(FFTW_BASE)/lib/libdfftw.2.dylib $(FFTW_BASE)/lib/libdrfftw.2.dylib \
 		Fluids.app/Contents/Frameworks
 	install_name_tool -id @executable_path/../Frameworks/libdfftw.2.dylib \
 		Fluids.app/Contents/Frameworks/libdfftw.2.dylib
@@ -39,11 +40,15 @@ Fluids.app: fluids
 	install_name_tool -change /sw/lib/libdrfftw.2.dylib \
 		@executable_path/../Frameworks/libdrfftw.2.dylib Fluids.app/Contents/MacOS/Fluids
 
+fluids: $(OBJS)
+	$(CC) -o $@ $^ $(FRAMEWORK) $(CFLAGS) $(LIBPATH) $(LIBS) 
+
 .PHONY: clean
 
 clean:
 	rm -f *.o
 
 distclean: clean
-	rm fluids
+	rm -f fluids
+	rm -f Fluids.zip
 	rm -rf Fluids.app
