@@ -11,18 +11,33 @@ INCLUDE = -I$(FFTW_BASE)/include -I"/System/Library/Frameworks/GLUT.framework/He
 
 LIBPATH += -L$(FFTW_BASE)/lib
 LIBS = -lfftw -lrfftw -lm
-LIBS = -lm
 
 DEPS = vector.h visualization.h simulation.h main.h global.h
 OBJS = vector.o visualization.o simulation.o main.o 
 
-FFTW_STATIC = $(FFTW_BASE)/lib/libdrfftw.a $(FFTW_BASE)/lib/libdfftw.a $(FFTW_BASE)/lib/libsrfftw.a $(FFTW_BASE)/lib/libsfftw.a
+FFTW_DYNAMIC = 
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(INCLUDE)
 
 fluids: $(OBJS)
-	$(CC) -o $@ $^ $(FFTW_STATIC) $(FRAMEWORK) $(CFLAGS) $(LIBPATH) $(LIBS) 
+	$(CC) -o $@ $^ $(FRAMEWORK) $(CFLAGS) $(LIBPATH) $(LIBS) 
+
+Fluids.app: fluids
+	mkdir -p Fluids.app/Contents/Frameworks
+	mkdir -p Fluids.app/Contents/MacOS
+	cp $< \
+		Fluids.app/Contents/MacOS
+	cp $(FFTW_BASE)/lib/libdfftw.2.dylib $(FFTW_BASE)/lib/libdrfftw.2.dylib \
+		Fluids.app/Contents/Frameworks
+	install_name_tool -id @executable_path/../Frameworks/libdfftw.2.dylib \
+		Fluids.app/Contents/Frameworks/libdfftw.2.dylib
+	install_name_tool -id @executable_path/../Frameworks/libdrfftw.2.dylib \
+		Fluids.app/Contents/Frameworks/libdrfftw.2.dylib
+	install_name_tool -change /sw/lib/libdfftw.2.dylib \
+		@executable_path/../Frameworks/libdfftw.2.dylib Fluids.app/Contents/MacOS/Fluids
+	install_name_tool -change /sw/lib/libdrfftw.2.dylib \
+		@executable_path/../Frameworks/libdrfftw.2.dylib Fluids.app/Contents/MacOS/Fluids
 
 .PHONY: clean
 
@@ -31,3 +46,4 @@ clean:
 
 distclean: clean
 	rm fluids
+	rm -rf Fluids.app
