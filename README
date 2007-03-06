@@ -1,17 +1,35 @@
 Flow visualization
 ==================
 
+Debian GNU/Linux
+----------------
+
 To install the required libraries in Debian, run the following command:
 
   # aptitude install fftw3-dev freeglut3-dev
 
 To build it:
 
+  $ ln -s Makefile.linux Makefile
   $ make
 
 To run it:
 
   $ ./fluids
+
+Mac OS X
+--------
+
+Install FFTW, for instance using Fink (http://fink.sourceforge.net/, package is called fftw).
+
+  $ ln -s Makefile.macosx Makefile
+  $ make Fluids.app
+
+Now open the Fluids application.
+
+Note: It might be necessary to edit the Makefile according to the exact
+location of the FFTW library.
+
 
 Have fun!
 Christian
