@@ -3,7 +3,7 @@ Flow visualization
 
 To install the required libraries in Debian, run the following command:
 
-  # aptitude install fftw-dev freeglut3-dev
+  # aptitude install fftw3-dev freeglut3-dev
 
 To build it:
 

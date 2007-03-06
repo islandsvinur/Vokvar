@@ -26,9 +26,12 @@ Fluids.zip: Fluids.app
 Fluids.app: fluids
 	$(INSTALL) -d Fluids.app/Contents/Frameworks
 	$(INSTALL) -d Fluids.app/Contents/MacOS
-	$(INSTALL) -d Fluids.app/Source
+	$(INSTALL) -d Fluids.app/Contents/Resources
+	$(INSTALL) -d Fluids.app/Contents/Resources/Source
 	$(INSTALL) $< Fluids.app/Contents/MacOS
-	$(INSTALL) -m 644 Makefile *.c *.h Fluids.app/Source
+	$(INSTALL) -m 644 Makefile *.c *.h Fluids.app/Contents/Resources/Source
+	$(INSTALL) -m 644 MacOS/Fluids.icns Fluids.app/Contents/Resources
+	$(INSTALL) -m 644 MacOS/Info.plist Fluids.app/Contents
 	$(INSTALL) $(FFTW_BASE)/lib/libdfftw.2.dylib $(FFTW_BASE)/lib/libdrfftw.2.dylib \
 		Fluids.app/Contents/Frameworks
 	install_name_tool -id @executable_path/../Frameworks/libdfftw.2.dylib \
