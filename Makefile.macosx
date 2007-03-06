@@ -1,3 +1,6 @@
+NAME = Fluids
+VERSION = 0.0.1
+ARCH = `uname -p`
 
 FFTW_BASE = /sw
 
@@ -20,31 +23,53 @@ OBJS = vector.o visualization.o simulation.o main.o
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(INCLUDE)
 
-Fluids.zip: Fluids.app
-	zip -r Fluids.zip Fluids.app
+$(NAME)-$(VERSION).dmg: wc.dmg $(NAME).app README
+	mkdir -p wc
+	hdiutil attach wc.dmg -noautoopen -quiet -mountpoint wc
+	cp -a $(NAME).app wc
+	cp -a README wc
+	WC_DEV=`hdiutil info | grep "wc" | grep "Apple_HFS" | awk '{print $$1}'` && \
+	hdiutil detach $$WC_DEV -quiet -force
+	hdiutil convert wc.dmg -quiet -format UDZO -imagekey zlib-level=9 -o "$(NAME)-$(ARCH)-$(VERSION).dmg"
+	rm -rf wc wc.dmg
 
-Fluids.app: fluids
-	$(INSTALL) -d Fluids.app/Contents/Frameworks
-	$(INSTALL) -d Fluids.app/Contents/MacOS
-	$(INSTALL) -d Fluids.app/Contents/Resources
-	$(INSTALL) -d Fluids.app/Contents/Resources/Source
-	$(INSTALL) $< Fluids.app/Contents/MacOS
-	$(INSTALL) -m 644 Makefile *.c *.h Fluids.app/Contents/Resources/Source
-	$(INSTALL) -m 644 MacOS/Fluids.icns Fluids.app/Contents/Resources
-	$(INSTALL) -m 644 MacOS/Info.plist Fluids.app/Contents
+$(NAME)-$(VERSION).zip: $(NAME).app
+	zip -r $(NAME)-$(VERSION).zip $(NAME).app
+
+$(NAME).app: fluids
+	$(INSTALL) -d $(NAME).app/Contents/Frameworks
+	$(INSTALL) -d $(NAME).app/Contents/MacOS
+	$(INSTALL) -d $(NAME).app/Contents/Resources
+	$(INSTALL) -d $(NAME).app/Contents/Resources/Source
+	$(INSTALL) $< $(NAME).app/Contents/MacOS
+	$(INSTALL) -m 644 Makefile *.c *.h $(NAME).app/Contents/Resources/Source
+	$(INSTALL) -m 644 MacOS/$(NAME).icns $(NAME).app/Contents/Resources
+	$(INSTALL) -m 644 MacOS/Info.plist $(NAME).app/Contents
 	$(INSTALL) $(FFTW_BASE)/lib/libdfftw.2.dylib $(FFTW_BASE)/lib/libdrfftw.2.dylib \
-		Fluids.app/Contents/Frameworks
+		$(NAME).app/Contents/Frameworks
 	install_name_tool -id @executable_path/../Frameworks/libdfftw.2.dylib \
-		Fluids.app/Contents/Frameworks/libdfftw.2.dylib
+		$(NAME).app/Contents/Frameworks/libdfftw.2.dylib
 	install_name_tool -id @executable_path/../Frameworks/libdrfftw.2.dylib \
-		Fluids.app/Contents/Frameworks/libdrfftw.2.dylib
+		$(NAME).app/Contents/Frameworks/libdrfftw.2.dylib
 	install_name_tool -change /sw/lib/libdfftw.2.dylib \
-		@executable_path/../Frameworks/libdfftw.2.dylib Fluids.app/Contents/MacOS/Fluids
+		@executable_path/../Frameworks/libdfftw.2.dylib $(NAME).app/Contents/MacOS/$(NAME)
 	install_name_tool -change /sw/lib/libdrfftw.2.dylib \
-		@executable_path/../Frameworks/libdrfftw.2.dylib Fluids.app/Contents/MacOS/Fluids
+		@executable_path/../Frameworks/libdrfftw.2.dylib $(NAME).app/Contents/MacOS/$(NAME)
 
 fluids: $(OBJS)
 	$(CC) -o $@ $^ $(FRAMEWORK) $(CFLAGS) $(LIBPATH) $(LIBS) 
+
+temp.dmg: temp.dmg.bz2
+	bunzip2 -k $<
+
+temp.dmg.bz2:
+	mkdir temp
+	hdiutil create -size 40m temp.dmg -srcfolder temp -format UDRW -volname "$(NAME)-$(VERSION)" -quiet
+	rmdir temp
+	bzip2 temp.dmg
+
+wc.dmg: temp.dmg
+	cp $< $@
 
 .PHONY: clean
 
@@ -52,6 +77,8 @@ clean:
 	rm -f *.o
 
 distclean: clean
+	rm -rf wc.dmg temp temp.dmg temp.dmg.bz2
 	rm -f fluids
-	rm -f Fluids.zip
-	rm -rf Fluids.app
+	rm -f $(NAME).zip
+	rm -f $(NAME)-*.dmg
+	rm -rf $(NAME).app
