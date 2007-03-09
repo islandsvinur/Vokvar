@@ -20,7 +20,9 @@ LIBS = -lfftw -lrfftw -lm
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(INCLUDE)
 
-.PHONY: clean distclean
+all: fluids
+
+.PHONY: clean
 
 clean:
 	rm -f *.o visualization/*.o
