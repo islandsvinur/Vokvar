@@ -6,6 +6,8 @@
 #include "global.h"
 
 #define VDEBUG(...) DEBUG("visualization", __VA_ARGS__)
+#define DRAW_POINT_AND_FREE(point) do { glVertex2f(point->x, point->y); \
+                                        del_vector(point); } while (0)
 
 #include "main.h"
 #include "simulation.h"
@@ -50,5 +52,6 @@ void visualization_start(Visualization *v);
 void visualization_stop(Visualization *v);
 
 void visualization_draw_field(Visualization *v);
+void visualization_set_color_palette(Visualization *v, float value);
 
 #endif /* VISUALIZATION_H */

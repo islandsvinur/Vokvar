@@ -1,0 +1,27 @@
+
+NAME = Fluids
+VERSION = 0.0.1
+ARCH = `uname -p`
+
+CC = gcc
+CFLAGS = -Wall
+
+INSTALL = /usr/bin/install
+
+DEPS = vector.h simulation.h main.h global.h visualization.h \
+	visualization/streamlines.h visualization/vectors.h \
+	visualization/smoke.h visualization/isolines.h
+OBJS = vector.o simulation.o main.o visualization.o \
+	visualization/streamlines.o visualization/vectors.o \
+	visualization/smoke.o visualization/isolines.o 
+
+LIBS = -lfftw -lrfftw -lm
+
+%.o: %.c $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS) $(INCLUDE)
+
+.PHONY: clean distclean
+
+clean:
+	rm -f *.o visualization/*.o
+

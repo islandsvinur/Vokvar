@@ -11,25 +11,21 @@
 #include "visualization.h"
 #include "simulation.h"
 
+#include "visualization/isolines.h"
+#include "visualization/smoke.h"
+#include "visualization/streamlines.h"
+#include "visualization/vectors.h"
+
 Visualization *v;
 
 void _set_color(float x, float y, int col);
 void _cpalet(float value, float *R, float *G, float *B);
-void _set_cpalet(Visualization *v, float value);
 
 void _display(void);
 void _reshape(int width, int height);
 void _idle(void);
 void _keyboard(unsigned char key, int x, int y);
 void _drag(int mx, int my);
-
-void _draw_vectors(Visualization *v);
-void _draw_smoke(Visualization *v);
-void _draw_streamlines(Visualization *v);
-void _draw_isolines(Visualization *v);
-
-void _draw_streamline(Visualization *v, Vector *start);
-void _draw_isoline(Visualization *v, Vector *start);
 
 Visualization *
 new_visualization(int argc, char **argv, Simulation *s, int width, int height) {
@@ -84,10 +80,24 @@ visualization_stop(Visualization *v) {
 
 void
 visualization_draw_field(Visualization *v) {
-  if (v->draw & VIZ_SMOKE)        _draw_smoke(v);
-  if (v->draw & VIZ_VECTORS)      _draw_vectors(v);
-  if (v->draw & VIZ_STREAMLINES)  _draw_streamlines(v);
-  if (v->draw & VIZ_ISOLINES)     _draw_isolines(v);
+  if (v->draw & VIZ_SMOKE)        smoke_draw(v);
+  if (v->draw & VIZ_VECTORS)      vectors_draw(v);
+  if (v->draw & VIZ_STREAMLINES)  streamlines_draw(v);
+  if (v->draw & VIZ_ISOLINES)     isolines_draw(v);
+}
+
+void
+visualization_set_color_palette(Visualization *v, float value) {
+   float R,G,B; int NLEVELS = 7;
+   switch(v->scalar_coloring)
+   {
+   default:
+   case 0:  R = G = B = value; break;
+   case 1:  _cpalet(value,&R,&G,&B); break;
+   case 2:  value *= NLEVELS; value = (int)(value); value/= NLEVELS;
+      _cpalet(value,&R,&G,&B); break;
+   }
+   glColor3f(R,G,B);
 }
 
 
@@ -105,20 +115,6 @@ _cpalet(float value, float *R, float *G, float *B) {
    *R = max(0.0,(3-fabs(value-4)-fabs(value-5))/2);
    *G = max(0.0,(4-fabs(value-2)-fabs(value-4))/2);
    *B = max(0.0,(3-fabs(value-1)-fabs(value-2))/2);
-}
-
-void
-_set_cpalet(Visualization *v, float value) {
-   float R,G,B; int NLEVELS = 7;
-   switch(v->scalar_coloring)
-   {
-   default:
-   case 0:  R = G = B = value; break;
-   case 1:  _cpalet(value,&R,&G,&B); break;
-   case 2:  value *= NLEVELS; value = (int)(value); value/= NLEVELS;
-      _cpalet(value,&R,&G,&B); break;
-   }
-   glColor3f(R,G,B);
 }
 
 void
@@ -244,7 +240,8 @@ _drag(int mx, int my) {
 
   X = xi; Y = yi;
 
-  if (X > (v->simulation->dimension - 1))  X = v->simulation->dimension - 1; if (Y > (v->simulation->dimension - 1))  Y = v->simulation->dimension - 1;
+  if (X > (v->simulation->dimension - 1))  X = v->simulation->dimension - 1; 
+  if (Y > (v->simulation->dimension - 1))  Y = v->simulation->dimension - 1;
   if (X < 0) X = 0; if (Y < 0) Y = 0;
 
   // Add force at the cursor location
@@ -252,205 +249,9 @@ _drag(int mx, int my) {
   dx = mx - lmx; dy = my - lmy;
   len = sqrt(dx * dx + dy * dy);
   if (len != 0.0) {  dx *= 0.1 / len; dy *= 0.1 / len; }
-  v->simulation->u_u0[Y * v->simulation->dimension + X] += dx; v->simulation->u_v0[Y * v->simulation->dimension + X] += dy;
+  v->simulation->u_u0[Y * v->simulation->dimension + X] += dx;
+  v->simulation->u_v0[Y * v->simulation->dimension + X] += dy;
   v->simulation->rho[Y * v->simulation->dimension + X] = 10.0f;
   lmx = mx; lmy = my;
 }
 
-
-/******************************************************************************
-                                 Draw functions
-******************************************************************************/
-
-
-void
-_draw_smoke(Visualization *v) {
-  int i, j, idx; double px, py;
-  Simulation *s = v->simulation;
-  /* Grid element sizes */
-  fftw_real  wn = (fftw_real)v->width / (fftw_real)(s->dimension + 1);
-  fftw_real  hn = (fftw_real)v->height / (fftw_real)(s->dimension + 1);
-
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  for (j = 0; j < s->dimension - 1; j++)
-  {
-    glBegin(GL_TRIANGLE_STRIP);
-
-    i = 0;
-    px = wn + (fftw_real)i * wn;
-    py = hn + (fftw_real)j * hn;
-    idx = (j * s->dimension) + i;
-    glColor3f(s->rho[idx], s->rho[idx], s->rho[idx]);
-    glVertex2f(px, py);
-
-    for (i = 0; i < s->dimension - 1; i++)
-    {
-      px = wn + (fftw_real)i * wn;
-      py = hn + (fftw_real)(j + 1) * hn;
-      idx = ((j + 1) * s->dimension) + i;
-      _set_cpalet(v, s->rho[idx]);
-      glVertex2f(px, py);
-      px = wn + (fftw_real)(i + 1) * wn;
-      py = hn + (fftw_real)j * hn;
-      idx = (j * s->dimension) + (i + 1);
-      _set_cpalet(v, s->rho[idx]);
-      glVertex2f(px, py);
-    }
-
-    px = wn + (fftw_real)(s->dimension - 1) * wn;
-    py = hn + (fftw_real)(j + 1) * hn;
-    idx = ((j + 1) * s->dimension) + (s->dimension - 1);
-    _set_cpalet(v, s->rho[idx]);
-    glVertex2f(px, py);
-    glEnd();
-  }
-}
-
-void
-_draw_vectors(Visualization *v) {
-  int i, j, idx;
-  Simulation *s = v->simulation;
-  /* Grid element sizes */
-  fftw_real  wn = (fftw_real)v->width / (fftw_real)(s->dimension + 1);
-  fftw_real  hn = (fftw_real)v->height / (fftw_real)(s->dimension + 1);
-
-  glLineWidth(1);
-  glBegin(GL_LINES);
-  for (i = 0; i < s->dimension; i++)
-  for (j = 0; j < s->dimension; j++) {
-    idx = (j * s->dimension) + i;
-    _set_color(s->u[idx], s->v[idx],v->color_dir);
-    glVertex2f(wn + (fftw_real)i * wn, 
-        hn + (fftw_real)j * hn);
-    glVertex2f((wn + (fftw_real)i * wn) + v->vector_scale * s->u[idx], 
-        (hn + (fftw_real)j * hn) + v->vector_scale * s->v[idx]);
-  }
-  glEnd();
-}
-
-#define DRAW_POINT_AND_FREE(point) do { glVertex2f(point->x, point->y); \
-                                        del_vector(point); } while (0)
-
-void
-_draw_streamlines(Visualization *v) {
-  _draw_streamline(v, new_vector(12, 12));
-  _draw_streamline(v, new_vector(25, 12));
-  _draw_streamline(v, new_vector(37, 12));
-  _draw_streamline(v, new_vector(25, 25));
-  _draw_streamline(v, new_vector(12, 37));
-  _draw_streamline(v, new_vector(25, 37));
-  _draw_streamline(v, new_vector(37, 37));
-}
-
-void
-_draw_isolines(Visualization *v) {
-  _draw_isoline(v, new_vector(25, 25));
-  /*glBegin(GL_POLYGON);
-  glVertex2f(100, 100);
-  glVertex2f(100, v->height - 100);
-  glVertex2f(v->width - 100, v->height - 100);
-  glVertex2f(v->width - 100, 100);
-  glEnd();*/
-}
-
-void
-_draw_streamline(Visualization *v, Vector *start) {
-  Vector *x0 = start; /* Current location */
-  Vector *x1; /* Next location */
-  Vector *v0; /* Velocity at current location */
-  Vector *v0_dt; /* Distance vector */
-  Vector *point;
-  int i; 
-  
-  int length = v->vector_scale;
-  Simulation *s = v->simulation;
-  Vector *ratio = new_vector(v->width / s->dimension, 
-                             v->height / s->dimension);
-
-  glLineWidth(3);
-  glBegin(GL_LINE_STRIP);
-  point = vector_mul(start, ratio);
-  DRAW_POINT_AND_FREE(point);
-
-  for ( i=0; i<length; i++ ) {
-    v0 = simulation_interpolate_speed(s, x0);
-    /* VDEBUG("%f %f", x0->x, x0->y); */
-    /* _set_color(v0->x, v0->y, v->color_dir); */
-    /* glColor3f(s->rho[idx], s->rho[idx], s->rho[idx]); */
-    _set_cpalet(v, (1-(float)i/length));
-    /* Euler's numerical integration method */
-    v0_dt = vector_scal_mul(v0, 10);
-    x1 = vector_add(x0, v0_dt);
-
-    del_vector(v0);
-    del_vector(v0_dt);
-    del_vector(x0);
-    x0 = x1;
-
-    point = vector_mul(x1, ratio);
-    DRAW_POINT_AND_FREE(point);
-    /* Now check whether the point is outside the viewport to start a new line
-     * piece */
-    if (vector_normalize(x1, s->dimension)) {
-      point = vector_mul(x1, ratio);
-      glEnd(); glBegin(GL_LINE_STRIP);
-      DRAW_POINT_AND_FREE(point);
-    }
-  }
-  del_vector(x0);
-  del_vector(ratio);
-
-  glEnd();
-}
-
-void
-_draw_isoline(Visualization *v, Vector *start) {
-  Simulation *s = v->simulation;
-  Vector *r[8];
-  int dim = s->dimension, i;
-  Vector *point = start;
-  float p, q;
-  float ratio1, ratio2;
-  float isovalue = s->rho[(int)((point->x * dim) + point->y)];
-
-  Vector *ratio = new_vector(v->width / s->dimension, 
-                             v->height / s->dimension);
-
-  _set_cpalet(v, 1);
-  glBegin(GL_LINE_STRIP);
-  
-  r[0] = new_vector(point->x - 1, point->y - 1);
-  r[1] = new_vector(point->x - 1, point->y);
-  r[2] = new_vector(point->x - 1, point->y + 1);
-  r[3] = new_vector(point->x,     point->y + 1);
-  r[4] = new_vector(point->x,     point->y - 1);
-  r[5] = new_vector(point->x + 1, point->y);
-  r[6] = new_vector(point->x + 1, point->y + 1);
-  r[7] = new_vector(point->x,     point->y - 1);
-
-  /*DRAW_POINT_AND_FREE(point); */
-  glVertex2f(point->x * ratio->x, point->y * ratio->y);
-
-  for ( i=0; i<8; i++ ) {
-    p = s->rho[(int)r[i]->x] * dim + s->rho[(int)r[i]->y]; 
-    q = s->rho[(int)r[(i+1)%8]->x] * dim + s->rho[(int)r[(i+1)%8]->y];
-    if (p >= isovalue && isovalue >= q) {
-      if (i == 0 || i == 1 || i == 4 || i == 5) {
-        ratio1 = (p - isovalue) / (p - q);
-        ratio2 = 0;
-      } else {
-        ratio1 = 0;
-        ratio2 = (p - isovalue) / (p - q);
-      }
-      point = new_vector(r[i]->x + ratio1, r[(i+1)%8]->y + ratio2);
-    }
-  }
-
-  free(r[0]); free(r[1]); free(r[2]); free(r[3]); 
-  free(r[4]); free(r[5]); free(r[6]); free(r[7]); 
-
-  /* DRAW_POINT_AND_FREE(point); */
-  glVertex2f(point->x * ratio->x, point->y * ratio->y);
-
-  glEnd();
-}

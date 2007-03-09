@@ -1,27 +1,13 @@
-NAME = Fluids
-VERSION = 0.0.1
-ARCH = `uname -p`
+
+include Makefile.common
 
 FFTW_BASE = /sw
-
-INSTALL = /usr/bin/install
-
-CC = gcc
-CFLAGS = -Wall
+INCLUDE = -I$(FFTW_BASE)/include -I"/System/Library/Frameworks/GLUT.framework/Headers"
 
 FRAMEWORK = -framework GLUT
 FRAMEWORK += -framework OpenGL
 
-INCLUDE = -I$(FFTW_BASE)/include -I"/System/Library/Frameworks/GLUT.framework/Headers"
-
 LIBPATH += -L$(FFTW_BASE)/lib
-LIBS = -lfftw -lrfftw -lm
-
-DEPS = vector.h visualization.h simulation.h main.h global.h
-OBJS = vector.o visualization.o simulation.o main.o 
-
-%.o: %.c $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS) $(INCLUDE)
 
 $(NAME)-$(VERSION).dmg: wc.dmg $(NAME).app README
 	mkdir -p wc
@@ -64,21 +50,14 @@ temp.dmg: temp.dmg.bz2
 
 temp.dmg.bz2:
 	mkdir temp
-	hdiutil create -size 40m temp.dmg -srcfolder temp -format UDRW -volname "$(NAME)-$(VERSION)" -quiet
+	hdiutil create -size 10m temp.dmg -srcfolder temp -format UDRW -volname "$(NAME)-$(VERSION)" -verbose
 	rmdir temp
 	bzip2 temp.dmg
 
 wc.dmg: temp.dmg
 	cp $< $@
 
-.PHONY: clean
-
-clean:
-	rm -f *.o
-
 distclean: clean
 	rm -rf wc.dmg temp temp.dmg temp.dmg.bz2
 	rm -f fluids
-	rm -f $(NAME).zip
-	rm -f $(NAME)-*.dmg
-	rm -rf $(NAME).app
+	rm -rf $(NAME).zip $(NAME)-$(ARCH)-$(VERSION).dmg $(NAME).app
