@@ -20,7 +20,10 @@ To run it:
 Mac OS X
 --------
 
-Install FFTW, for instance using Fink (http://fink.sourceforge.net/, package is called fftw).
+To run Fluids, just double click the Fluids application icon.
+
+To build Fluids, you'll need the FFTW libraries. Install FFTW first, for
+instance from Fink (http://fink.sourceforge.net/, the package is called fftw).
 
   $ ln -s Makefile.macosx Makefile
   $ make Fluids.app
@@ -28,7 +31,8 @@ Install FFTW, for instance using Fink (http://fink.sourceforge.net/, package is 
 Now open the Fluids application.
 
 Note: It might be necessary to edit the Makefile according to the exact
-location of the FFTW library.
+location of the FFTW library. Also remember that you need to have the Developer
+Tools installed.
 
 
 Have fun!
