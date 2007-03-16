@@ -1,10 +1,24 @@
 #include "isolines.h"
+#include <rfftw.h>
+
+#define MAX(a, b)  (((a) > (b)) ? (a) : (b))
+#define MIN(a, b)  (((a) < (b)) ? (a) : (b))
 
 void _draw_isoline(Visualization *v, Vector *start);
+void Contour(Visualization *v, int nc, double *z);
 
 void
 isolines_draw(Visualization *v) {
-  _draw_isoline(v, new_vector(25, 25));
+  static int n = 10;
+  double *levels;
+  malloc(sizeof(levels) * n);
+  levels[0] = 0.0; levels[1] = 0.01;
+  levels[2] = 0.02; levels[3] = 0.03;
+  levels[4] = 0.04; levels[5] = 0.05; 
+  levels[6] = 0.06; levels[7] = 0.07; 
+  levels[8] = 0.08; levels[9] = 0.09;
+  Contour(v, n, levels);
+  // _draw_isoline(v, new_vector(25, 25));
   /*glBegin(GL_POLYGON);
   glVertex2f(100, 100);
   glVertex2f(100, v->height - 100);
@@ -66,7 +80,7 @@ _draw_isoline(Visualization *v, Vector *start) {
 }
 
 
-/* Source: http://local.wasp.uwa.edu.au/~pbourke/papers/conrec/conrec.c */
+/* Original source: http://local.wasp.uwa.edu.au/~pbourke/papers/conrec/conrec.c */
 /*
    Derivation from the fortran version of CONREC by Paul Bourke
    d               ! matrix of data to contour
@@ -76,9 +90,7 @@ _draw_isoline(Visualization *v, Vector *start) {
    nc              ! number of contour levels
    z               ! contour levels in increasing order
 */
-void Contour(double **d,int ilb,int iub,int jlb,int jub,
-   double *x,double *y,int nc,double *z,
-   void (*ConrecLine)(double,double,double,double,double))
+void Contour(Visualization *v, int nc, double *z)
 {
 #define xsect(p1,p2) (h[p2]*xh[p1]-h[p1]*xh[p2])/(h[p2]-h[p1])
 #define ysect(p1,p2) (h[p2]*yh[p1]-h[p1]*yh[p2])/(h[p2]-h[p1])
@@ -97,13 +109,21 @@ void Contour(double **d,int ilb,int iub,int jlb,int jub,
    };
    double temp1,temp2;
 
-   for (j=(jub-1);j>=jlb;j--) {
-      for (i=ilb;i<=iub-1;i++) {
-         temp1 = MIN(d[i][j],d[i][j+1]);
-         temp2 = MIN(d[i+1][j],d[i+1][j+1]);
+   Simulation *s = v->simulation;
+   Vector *ratio = new_vector(v->width / s->dimension,
+                              v->height / s->dimension);
+   int dim = s->dimension;
+
+   fftw_real *d = s->rho;
+
+   glBegin(GL_LINES);
+   for (j=(dim-1);j>=0;j--) {
+      for (i=0;i<=dim -1;i++) {
+         temp1 = MIN(d[i*dim + j],d[i*dim + j+1]);
+         temp2 = MIN(d[i*dim+dim + j],d[i*dim+dim + j+1]);
          dmin  = MIN(temp1,temp2);
-         temp1 = MAX(d[i][j],d[i][j+1]);
-         temp2 = MAX(d[i+1][j],d[i+1][j+1]);
+         temp1 = MAX(d[i*dim + j],d[i*dim + j+1]);
+         temp2 = MAX(d[i*dim+dim + j],d[i*dim+dim + j+1]);
          dmax  = MAX(temp1,temp2);
          if (dmax < z[0] || dmin > z[nc-1])
             continue;
@@ -112,13 +132,13 @@ void Contour(double **d,int ilb,int iub,int jlb,int jub,
                continue;
             for (m=4;m>=0;m--) {
                if (m > 0) {
-                  h[m]  = d[i+im[m-1]][j+jm[m-1]]-z[k];
-                  xh[m] = x[i+im[m-1]];
-                  yh[m] = y[j+jm[m-1]];
+                  h[m]  = d[(i+im[m-1]) * dim + j+jm[m-1]]-z[k];
+                  xh[m] = i+im[m-1];
+                  yh[m] = j+jm[m-1];
                } else {
                   h[0]  = 0.25 * (h[1]+h[2]+h[3]+h[4]);
-                  xh[0] = 0.50 * (x[i]+x[i+1]);
-                  yh[0] = 0.50 * (y[j]+y[j+1]);
+                  xh[0] = (i+0.5);
+                  yh[0] = (j+0.5);
                }
                if (h[m] > 0.0)
                   sh[m] = 1;
@@ -221,11 +241,14 @@ void Contour(double **d,int ilb,int iub,int jlb,int jub,
                }
 
                /* Finally draw the line */
-               ConrecLine(x1,y1,x2,y2,z[k]);
+               /* ConrecLine(x1,y1,x2,y2,z[k]); */
+               glVertex2f(x1 * ratio->x, y1 * ratio->y);
+               glVertex2f(x2 * ratio->x, y2 * ratio->y);
             } /* m */
          } /* k - contour */
       } /* i */
    } /* j */
+   glEnd();
 }
 
 
