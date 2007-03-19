@@ -29,5 +29,6 @@ void simulation_diffuse_matter(Simulation *s, fftw_real dt);
 Vector *simulation_interpolate_speed(Simulation *s, Vector *v);
 float *simulation_interpolate_density(Simulation *s, Vector *v);
 float simulation_value(Simulation *s, int x, int y);
+float simulation_maximal_value(Simulation *s);
 
 #endif /* SIMULATION_H */

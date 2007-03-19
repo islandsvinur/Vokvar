@@ -172,3 +172,28 @@ float
 simulation_value(Simulation *s, int x, int y) {
   return s->rho[y * s->dimension + x];
 }
+
+float
+simulation_value_interpolated(Simulation *s, float x, float y) {
+  float p1, p2, p3, p4;
+  int xl = floor(x);
+  int yl = floor(y);
+
+  p1 = s->rho[xl * s->dimension + xl];
+  p2 = s->rho[yl * s->dimension + xl + 1];
+  p3 = s->rho[(yl+1) * s->dimension + xl];
+  p4 = s->rho[(yl+1) * s->dimension + xl + 1];
+
+  // return s->rho[y * s->dimension + x];
+  return 0.2;
+}
+
+float
+simulation_maximal_value(Simulation *s) {
+  int i;
+  float max = 0.0;
+  for (i = 0; i < s->dimension * s->dimension; i++) {
+     max = (((max) > (s->rho[i])) ? (max) : (s->rho[i]));
+  }
+  return max;
+}
