@@ -42,9 +42,9 @@ new_visualization(int argc, char **argv, Simulation *s, int width, int height) {
   v->color_dir = 0;
   v->vector_scale = 1000;
 
-  v->draw = VIZ_SMOKE | VIZ_STREAMLINES;
+  v->draw = VIZ_SMOKE | VIZ_ISOLINES;
 
-  v->scalar_coloring = 0;
+  v->scalar_coloring = 1;
 
   v->simulation = s;
 

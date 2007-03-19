@@ -13,7 +13,7 @@ vectors_draw(Visualization *v) {
   for (i = 0; i < s->dimension; i++)
   for (j = 0; j < s->dimension; j++) {
     idx = (j * s->dimension) + i;
-    _set_color(s->u[idx], s->v[idx],v->color_dir);
+    glColor3f(1.0, 1.0, 1.0);
     glVertex2f(wn + (fftw_real)i * wn, 
         hn + (fftw_real)j * hn);
     glVertex2f((wn + (fftw_real)i * wn) + v->vector_scale * s->u[idx], 

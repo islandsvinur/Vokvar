@@ -16,7 +16,6 @@ isolines_draw(Visualization *v) {
   values = (float *) malloc(num * sizeof(float));
 
   int val = 0;
-  values[val] = 0.0005;
   values[val++] = 0.001;
   values[val++] = 0.005;
   values[val++] = 0.01;
@@ -24,6 +23,7 @@ isolines_draw(Visualization *v) {
   values[val++] = 0.1;
   values[val++] = 0.5;
   values[val++] = 1.0;
+  values[val++] = 5.0;
 
   isolines_draw_by_value(v, values, num);
   // isolines_draw_by_number(v, 20);
@@ -96,6 +96,7 @@ _draw_isoline_value(Visualization *v, float value) {
                           { {0,3,4},{1,3,1},{4,3,0} },
                           { {9,6,7},{5,2,0},{8,0,0} } };
 
+  glLineWidth(1);
   glBegin(GL_LINES);
   visualization_set_color_palette(v, pow(value, 0.5));
 
