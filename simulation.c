@@ -167,3 +167,8 @@ simulation_interpolate_speed(Simulation *s, Vector *v) {
   
   return new_vector(result_u, result_v);
 }
+
+float
+simulation_value(Simulation *s, int x, int y) {
+  return s->rho[y * s->dimension + x];
+}
