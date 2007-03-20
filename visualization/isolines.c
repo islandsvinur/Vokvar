@@ -1,5 +1,6 @@
 #include "isolines.h"
 #include "../simulation.h"
+#include "../visualization.h"
 #include <rfftw.h>
 #include <math.h>
 
@@ -7,27 +8,54 @@
 #define MIN(a, b)  (((a) < (b)) ? (a) : (b))
 
 void _draw_isoline_point(Visualization *v, Vector *start);
+void _draw_point(Visualization *v, Vector *point);
 void _draw_isoline_value(Visualization *v, float value);
-void Contour(Visualization *v, int nc, double *z);
 
 void
 isolines_draw(Visualization *v) {
-  float *values;
-  int num = 8;
-  values = (float *) malloc(num * sizeof(float));
 
-  int val = 0;
-  values[val++] = 0.001;
-  values[val++] = 0.005;
-  values[val++] = 0.01;
-  values[val++] = 0.05;
-  values[val++] = 0.1;
-  values[val++] = 0.5;
-  values[val++] = 1.0;
-  values[val++] = 5.0;
+  if (v->isolines_type == VIZ_ISO_BY_VALUE) {
 
-  isolines_draw_by_value(v, values, num);
-  // isolines_draw_by_number(v, 20);
+    float *values;
+    int num = v->isolines_number;
+    values = (float *) malloc(num * sizeof(float));
+
+    int val = num;
+    float value = 5.0;
+    while (val>0) {
+      values[--val] = value;
+      value *= 0.5;
+    }
+
+    isolines_draw_by_value(v, values, num);
+    free(values);
+  
+  } else if (v->isolines_type == VIZ_ISO_BY_NUM) {
+
+    isolines_draw_by_number(v, v->isolines_number);
+
+  } else if (v->isolines_type == VIZ_ISO_BY_POINT) {
+
+    Vector **values;
+    int num = 9;
+    values = (Vector **) malloc(num * sizeof(Vector*));
+
+    int val = 0;
+    values[val++] = new_vector(5, 5);
+    values[val++] = new_vector(10, 10);
+    values[val++] = new_vector(15, 15);
+    values[val++] = new_vector(20, 20);
+    values[val++] = new_vector(25, 25);
+    values[val++] = new_vector(30, 30);
+    values[val++] = new_vector(35, 35);
+    values[val++] = new_vector(40, 40);
+    values[val++] = new_vector(45, 45);
+    isolines_draw_by_point(v, values, num);
+    while (val>0) del_vector(values[--val]);
+    free(values);
+ 
+  }
+
 }
 
 void
@@ -49,23 +77,15 @@ isolines_draw_by_number(Visualization *v, int num) {
 
 void
 isolines_draw_by_value(Visualization *v, float *values, int num) {
-  int i;
-  for (i = 0; i < num; i++) {
-    _draw_isoline_value(v, values[i]);
-  }
+  while (num>0)
+    _draw_isoline_value(v, values[--num]);
 }
 
 void
-isolines_draw_by_point(Visualization *v, Vector *points, int num) {
-  static int n = 10;
-  double *levels;
-  malloc(sizeof(levels) * n);
-  Vector *p;
-  int i;
-  for (i = 0; i < 10; i++) {
-    p = new_vector(5 * i, 5 * i);
-    _draw_isoline_point(v, p);
-    del_vector(p);
+isolines_draw_by_point(Visualization *v, Vector **points, int num) {
+  while (num>0) {
+    _draw_point(v, points[--num]);
+    _draw_isoline_point(v, points[num]);
   }
 }
 
@@ -76,6 +96,18 @@ _draw_isoline_point(Visualization *v, Vector *start) {
 }
 
 void
+_draw_point(Visualization *v, Vector *point) {
+  glPointSize(10.0);
+  glColor3f(1.0, 1.0, 1.0);
+  glEnable(GL_BLEND);
+  glEnable(GL_POINT_SMOOTH);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glBegin(GL_POINTS);
+  glVertex2f((v->ratio)->x * point->x, (v->ratio)->y * point->y);
+  glEnd();
+}
+
+void
 _draw_isoline_value(Visualization *v, float value) {
   Simulation *s = v->simulation;
 #define VAL(x,y) simulation_value(s, x, y)
@@ -83,7 +115,7 @@ _draw_isoline_value(Visualization *v, float value) {
 #define ysect(p1,p2) (h[p2]*yh[p1]-h[p1]*yh[p2])/(h[p2]-h[p1])
 
   int dim = s->dimension;
-  Vector *ratio = new_vector(v->width / dim, v->height / dim);
+  Vector *ratio = v->ratio;
 
   float min, max;
 

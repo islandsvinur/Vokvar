@@ -24,6 +24,13 @@ typedef enum {
   VIZ_ISOLINES = 8
 } Visualization_draw;
 
+typedef enum {
+  VIZ_ISO_BY_NUM = 0,
+  VIZ_ISO_BY_VALUE,
+  VIZ_ISO_BY_POINT,
+  VIZ_ISO_COUNT
+} Visualization_isolines_type;
+
 typedef struct {
   int width;
   int height;
@@ -35,7 +42,13 @@ typedef struct {
   int color_dir;
   float vector_scale;
 
+  Vector *ratio;
+
   Visualization_draw draw;
+
+  Visualization_isolines_type isolines_type;
+
+  int isolines_number;
 
   int scalar_coloring;
 

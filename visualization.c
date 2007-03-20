@@ -44,9 +44,14 @@ new_visualization(int argc, char **argv, Simulation *s, int width, int height) {
 
   v->draw = VIZ_SMOKE | VIZ_ISOLINES;
 
+  v->isolines_type = VIZ_ISO_BY_VALUE;
+  v->isolines_number = 16;
+
   v->scalar_coloring = 1;
 
   v->simulation = s;
+
+  v->ratio = new_vector(width / s->dimension, height / s->dimension);
 
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
@@ -64,6 +69,7 @@ new_visualization(int argc, char **argv, Simulation *s, int width, int height) {
 
 void
 visualization_destroy(Visualization *v) {
+  del_vector(v->ratio);
   free(v);
 }
 
@@ -185,7 +191,8 @@ _keyboard(unsigned char key, int x, int y) {
               printf("Time step: %f\n", v->timestep); break;
 
     /* Whether to colorize the vectors according to their direction */
-    case 'c': v->color_dir = 1 - v->color_dir; break;
+    case 'c': v->color_dir = 1 - v->color_dir; 
+              printf("Colorize vectors: %s\n", (v->color_dir ? "yes" : "no")); break;
 
     /* Scale of vectors and streamlines */
     case 'S': v->vector_scale *= 1.2; 
@@ -198,6 +205,13 @@ _keyboard(unsigned char key, int x, int y) {
               printf("Viscosity: %f\n", v->viscosity); break;
     case 'v': v->viscosity *= 0.2; 
               printf("Viscosity: %f\n", v->viscosity); break;
+
+    /* Number of isolines in 'by number' mode */
+    case 'I': v->isolines_number *= 2;
+              printf("Isolines count: %d\n", v->isolines_number); break;
+    case 'i': v->isolines_number *= 0.5;
+              if (v->isolines_number == 0) v->isolines_number = 1.0;
+              printf("Isolines count: %d\n", v->isolines_number); break;
 
     /* Visualizations to draw */
     case '1': if (v->draw & VIZ_SMOKE)        v->draw -= VIZ_SMOKE; 
@@ -219,9 +233,22 @@ _keyboard(unsigned char key, int x, int y) {
                 v->scalar_coloring=0; 
               break;
 
+    case 'o': v->isolines_type++;
+              if (v->isolines_type==VIZ_ISO_COUNT)
+                v->isolines_type=VIZ_ISO_BY_NUM;
+              printf("Isolines type: ");
+              switch (v->isolines_type) {
+              default: break;
+              case VIZ_ISO_BY_NUM: printf("by number (%d)", v->isolines_number); break;
+              case VIZ_ISO_BY_VALUE: printf("by value (%d)", v->isolines_number); break;
+              case VIZ_ISO_BY_POINT: printf("by point"); break;
+              }
+              printf("\n");
+              break;
+
     /* Freeze animation (and simulation) */
     case 'a': v->frozen = 1-v->frozen; 
-              printf("Frozen: %i\n", v->frozen); break;
+              printf("Frozen: %s\n", (v->frozen ? "yes" : "no")); break;
 
     /* Quit */
     case 'q': main_stop();

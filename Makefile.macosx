@@ -9,7 +9,7 @@ FRAMEWORK += -framework OpenGL
 
 LIBPATH += -L$(FFTW_BASE)/lib
 
-$(NAME)-$(VERSION).dmg: wc.dmg $(NAME).app README
+$(NAME).dmg: wc.dmg $(NAME).app README
 	mkdir -p wc
 	hdiutil attach wc.dmg -noautoopen -quiet -mountpoint wc
 	cp -a $(NAME).app wc
@@ -20,7 +20,7 @@ $(NAME)-$(VERSION).dmg: wc.dmg $(NAME).app README
 	hdiutil convert wc.dmg -quiet -format UDZO -imagekey zlib-level=9 -o "$(NAME)-$(ARCH)-$(VERSION).dmg"
 	rm -rf wc wc.dmg
 
-$(NAME)-$(VERSION).zip: $(NAME).app
+$(NAME).zip: $(NAME).app
 	zip -r $(NAME)-$(VERSION).zip $(NAME).app
 
 $(NAME).app: fluids
