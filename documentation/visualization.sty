@@ -1,0 +1,55 @@
+%% $Id: softarch.sty 1710 2005-10-25 21:23:39Z christian $
+%%
+%% LaTeX2e supplement package for usage in Visualization
+%% course documents.
+%%
+%% File:    report.sty
+%% Version: 0.1
+%% Author:  Christian Luijten
+%%          Faculty of Computer Science,
+%%          University of Technology Eindhoven
+
+\RequirePackage{url}
+\RequirePackage{xtab}
+\RequirePackage{calc}
+\RequirePackage{acronym}
+\RequirePackage{fancyhdr}
+\RequirePackage{tabularx}
+\RequirePackage{graphicx}
+%\RequirePackage[T1]{fontenc}
+\RequirePackage[english]{babel}
+
+% Style settings
+\pagestyle{headings}
+\setlength\parskip{\medskipamount}
+\setlength\parindent{0pt}
+
+% General style commands
+\newcommand{\fluids}{\textsc{V\"okvar}}
+
+% The title page: \titlepage
+\newcommand{\maketitlepage}[2][\today]{%
+ \begin{titlepage}
+  \title{#2}
+  \author{Christian Luijten}
+  \date{#1}
+  \maketitle
+  \vspace{4cm}
+  \begin{center}
+    {\Huge \fluids}, m.pl. liquids, fluids
+  \end{center}
+
+  \vfill
+  {\small
+    \begin{tabular}{lr}
+     \multicolumn{2}{l}{\bf Christian Luijten} \\
+     \multicolumn{2}{l}{Visualization (2IV30)} \\
+     \multicolumn{2}{l}{Department of Mathematics \& Computer Science} \\
+     \multicolumn{2}{l}{Technische Universiteit Eindhoven} \\
+    \end{tabular}
+  }
+
+  \thispagestyle{empty}
+ \end{titlepage}
+}
+
