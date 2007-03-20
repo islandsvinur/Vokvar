@@ -1,0 +1,69 @@
+% Introduction
+
+This document describes the design process and usage of the \fluids\
+application as result of assignment 6 of the course of Visualization~(2IV30) at
+the Technical~University~of~Eindhoven.
+
+\begin{quote}
+
+In this assignment, you must construct a software tool for visualizing a time
+dependent two dimensional vector field that represents the flow of a fluid.
+This vector field is produced by a numerical simulation library called FFTW.
+Along with the flow field, FFTW simulates the diffusion and advection of matter
+in time. For an easy start, we provide a simple program that uses the FFTW to
+simulate and visualize a fluid flow. Our visualization is limited to simple
+hedgehogs colored by a blue-to-red colormap (see Course Material for details on
+these two algorithms). The simulation of the flow is driven interactively by
+the user, via mouse clicks in the window. The clicks inject local changes
+(vortices, matter) in the flow.  The above software, written in C, can be
+downloaded from:
+\url{http://www.win.tue.nl/alext/COURSES/INFO_VIS/SOFTWARE/Smoke.zip}.
+
+The assignment asks you to implement at least two of the following
+visualization techniques: 
+
+\begin{itemize} 
+
+  \item Streamlines: show the flow by a number of instantaneous streamlines.
+  You should decide yourself about where to start (and stop) the streamlines,
+  how long the streamlines should be, how many to draw, how to draw them,
+  etc. Some of these parameters may be exposed to the end user via a user
+  interface. Others may be automatically set by the program itself. 
+
+
+  \item Isolines: show the flow by displaying the isolines of the matter
+  density. You should decide upon the number of isolines, distance between
+  isolines, and way of drawing them, just as in the case of streamlines. 
+
+  \item Height plots: show the flow by displaying a height plot (3D elevation
+  graph) of the matter density. You should decide upon the viewing angle,
+  height mapping, shading, and coloring of the 3D plot. 
+
+\end{itemize}
+
+For this assignment, students can work in groups of two persons. The
+deliverable should contain: 
+
+\begin{itemize}
+  
+  \item a report containing a description of the implemented methods, the
+  choices made during the implementation, the problems found, limitations of
+  the proposed solution, and a simple `user manual' of the implemented
+  software, in total 5--10 pages. 
+
+  \item the software: source code as well as running executable. 
+
+\end{itemize}
+
+Since the software we provide as a starting point is written in C under MS
+Windows (with Visual C++), we recommend you to develop your solution in the
+above setting. However, other implementations (Delphi, Java, Linux) are allowed
+too, as long as all deliverables are present. The deadline of this assignment
+is as for the other ones (before the spring term).
+
+\end{quote}
+
+It was chosen to implement streamlines and isolines, and to write the software
+in C under Mac~OS~X and Linux. The final code compiles under Mac~OS~X and Linux
+and should in theory also compile under Windows given the correct build options.
+
