@@ -45,9 +45,9 @@ new_visualization(int argc, char **argv, Simulation *s, int width, int height) {
   v->color_dir = 0;
   v->vector_scale = 1000;
 
-  v->draw = VIZ_SMOKE | VIZ_ISOLINES;
+  v->draw = VIZ_ISOLINES;
 
-  v->isolines_type = VIZ_ISO_BY_VALUE;
+  v->isolines_type = VIZ_ISO_BY_NUM;
   v->isolines_number = 16;
 
   v->scalar_coloring = 1;

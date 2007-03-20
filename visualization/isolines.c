@@ -60,19 +60,28 @@ isolines_draw(Visualization *v) {
 
 void
 isolines_draw_by_number(Visualization *v, int num) {
-  float max = simulation_maximal_value(v->simulation);
-  if (max > 2.0) max = 2.0;
-  float stepsize = max / num;
-  int i;
+  Simulation_statistics *st = simulation_statistics(v->simulation);
+  float max = st->max;
+  float min = st->min;
+  float mean = st->mean;
+  float stepsize = log(max/mean) / num;
+  int i = num - 1;
 
   float *values;
   values = (float*) malloc(num * sizeof(float));
 
-  for (i = 0; i < num; i++) {
-    values[i] = stepsize * i;
+  // printf("max mean min: %f %f %f\nstepsize: %f\n", max, mean, min, stepsize);
+  // printf("values: ");
+  values[i] = max;
+  // printf("%f ", values[i]);
+  while (i>0) {
+    values[--i] = values[i+1] * stepsize;
+    // printf("%f ", values[i]);
   }
+  // printf("\n");
 
   isolines_draw_by_value(v, values, num);
+  free(values);
 }
 
 void

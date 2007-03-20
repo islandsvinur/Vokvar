@@ -197,3 +197,28 @@ simulation_maximal_value(Simulation *s) {
   }
   return max;
 }
+
+Simulation_statistics *
+simulation_statistics(Simulation *s) {
+  Simulation_statistics *st;
+  st = (Simulation_statistics*) malloc(sizeof(Simulation_statistics));
+
+  int i;
+  int dim = pow(s->dimension, 2.0);
+  float max = -INFINITY;
+  float min = INFINITY;
+  float mean = 0.0;
+
+  for (i = 0; i < dim; i++) {
+     max = (((max) > (s->rho[i])) ? (max) : (s->rho[i]));
+     min = (((min) < (s->rho[i])) ? (min) : (s->rho[i]));
+     mean += s->rho[i];
+  }
+
+  st->max = max;
+  st->min = min;
+  st->mean = mean / pow(s->dimension, 2.0);
+
+  return st;
+}
+

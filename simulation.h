@@ -20,6 +20,12 @@ typedef struct {
   rfftwnd_plan plan_rc, plan_cr;
 } Simulation;
 
+typedef struct {
+  float max;
+  float min;
+  float mean;
+} Simulation_statistics;
+
 Simulation *new_simulation(int32_t dimension);
 void simulation_destroy(Simulation *s);
 
@@ -30,5 +36,6 @@ Vector *simulation_interpolate_speed(Simulation *s, Vector *v);
 float *simulation_interpolate_density(Simulation *s, Vector *v);
 float simulation_value(Simulation *s, int x, int y);
 float simulation_maximal_value(Simulation *s);
+Simulation_statistics *simulation_statistics(Simulation *s);
 
 #endif /* SIMULATION_H */
