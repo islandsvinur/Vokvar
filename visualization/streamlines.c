@@ -12,8 +12,7 @@ _drawsingle(Visualization *v, Vector *start) {
   
   int length = v->vector_scale;
   Simulation *s = v->simulation;
-  Vector *ratio = new_vector(v->width / s->dimension, 
-                             v->height / s->dimension);
+  Vector *ratio = v->ratio;
 
   glLineWidth(3);
   glBegin(GL_LINE_STRIP);
@@ -46,7 +45,6 @@ _drawsingle(Visualization *v, Vector *start) {
     }
   }
   del_vector(x0);
-  del_vector(ratio);
 
   glEnd();
 }

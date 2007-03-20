@@ -34,8 +34,11 @@ new_visualization(int argc, char **argv, Simulation *s, int width, int height) {
 
   v->width = width;
   v->height = height;
+  v->oldwidth = width;
+  v->oldheight = height;
 
   v->frozen = 0;
+  v->fullscreen = 0;
   v->viscosity = 0.001;
   v->timestep = 0.2;
 
@@ -165,8 +168,15 @@ _reshape(int width, int height) {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   gluOrtho2D(0.0, (GLdouble)width, 0.0, (GLdouble)height);
+
+  v->oldwidth = v->width; 
+  v->oldheight = v->height;
   v->width = width; 
   v->height = height;
+
+  Vector *p = v->ratio;
+  v->ratio = new_vector(width / v->simulation->dimension, height / v->simulation->dimension);
+  del_vector(p);
 }
 
 void 
@@ -249,6 +259,13 @@ _keyboard(unsigned char key, int x, int y) {
     /* Freeze animation (and simulation) */
     case 'a': v->frozen = 1-v->frozen; 
               printf("Frozen: %s\n", (v->frozen ? "yes" : "no")); break;
+
+    case 'f': v->fullscreen = 1 - v->fullscreen;
+              if (v->fullscreen) 
+                glutFullScreen();
+              else
+                glutReshapeWindow(v->oldwidth, v->oldheight);
+              break;
 
     /* Quit */
     case 'q': main_stop();

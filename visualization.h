@@ -32,10 +32,11 @@ typedef enum {
 } Visualization_isolines_type;
 
 typedef struct {
-  int width;
-  int height;
+  int width, oldwidth;
+  int height, oldheight;
 
   int frozen;
+  int fullscreen;
   float viscosity;
   float timestep;
 

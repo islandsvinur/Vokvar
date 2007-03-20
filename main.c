@@ -25,7 +25,7 @@ main_stop(void) {
 int
 main(int argc, char **argv) {
   simulation = new_simulation(DIM);
-  visualization = new_visualization(argc, argv, simulation, 500, 500);
+  visualization = new_visualization(argc, argv, simulation, 600, 600);
 
   visualization_start(visualization);
 
