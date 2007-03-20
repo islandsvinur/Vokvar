@@ -3,7 +3,7 @@
 
 void
 _drawsingle(Visualization *v, Vector *start) {
-  Vector *x0 = start; /* Current location */
+  Vector *x0 = copy_vector(start); /* Current location */
   Vector *x1; /* Next location */
   Vector *v0; /* Velocity at current location */
   Vector *v0_dt; /* Distance vector */
@@ -45,8 +45,20 @@ _drawsingle(Visualization *v, Vector *start) {
     }
   }
   del_vector(x0);
-
   glEnd();
+
+  glPointSize(10.0);
+  glColor3f(1.0, 1.0, 1.0);
+  glEnable(GL_BLEND);
+  glEnable(GL_POINT_SMOOTH);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glBegin(GL_POINTS);
+  point = vector_mul(start, ratio);
+  glVertex2f(point->x, point->y);
+  del_vector(point);
+  del_vector(start);
+  glEnd();
+
 }
 
 void
