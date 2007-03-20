@@ -11,48 +11,89 @@ void _draw_isoline_point(Visualization *v, Vector *start);
 void _draw_point(Visualization *v, Vector *point);
 void _draw_isoline_value(Visualization *v, float value);
 
+typedef struct {
+  int num_values, num_points;
+  float *values;
+  Vector **points;
+} Isolines_datapoints;
+
 void
 isolines_draw(Visualization *v) {
+  Isolines_datapoints *data;
+
+  if (v->isolines_datapoints == NULL) {
+    data = malloc(sizeof(Isolines_datapoints));
+    v->isolines_datapoints = data;
+
+    data->num_values = 0;
+    data->num_points = 0;
+    data->values = NULL;
+    data->points = NULL;
+
+  } else data = v->isolines_datapoints;
+
+  int num = v->isolines_number;
 
   if (v->isolines_type == VIZ_ISO_BY_VALUE) {
 
-    float *values;
-    int num = v->isolines_number;
-    values = (float *) malloc(num * sizeof(float));
+    if (data->num_values != num) {
+      if (data->values != NULL) free(data->values);
 
-    int val = num;
-    float value = 5.0;
-    while (val>0) {
-      values[--val] = value;
-      value *= 0.5;
+      float *values;
+      values = (float *) malloc(num * sizeof(float));
+
+      int val = num;
+      float value = 7.0;
+      while (val>0) {
+        values[--val] = value;
+        value *= 1.5 / num;
+      }
+
+      data->values = values;
+      data->num_values = num;
     }
 
-    isolines_draw_by_value(v, values, num);
-    free(values);
+    isolines_draw_by_value(v, data->values, data->num_values);
   
   } else if (v->isolines_type == VIZ_ISO_BY_NUM) {
 
-    isolines_draw_by_number(v, v->isolines_number);
+    isolines_draw_by_number(v, num);
 
   } else if (v->isolines_type == VIZ_ISO_BY_POINT) {
 
-    Vector **values;
-    int num = 9;
-    values = (Vector **) malloc(num * sizeof(Vector*));
+    num /= 2;
 
-    int val = 0;
-    values[val++] = new_vector(5, 5);
-    values[val++] = new_vector(10, 10);
-    values[val++] = new_vector(15, 15);
-    values[val++] = new_vector(20, 20);
-    values[val++] = new_vector(25, 25);
-    values[val++] = new_vector(30, 30);
-    values[val++] = new_vector(35, 35);
-    values[val++] = new_vector(40, 40);
-    values[val++] = new_vector(45, 45);
-    isolines_draw_by_point(v, values, num);
-    while (val>0) del_vector(values[--val]);
-    free(values);
+    if (data->num_points != num) {
+
+      Vector **values;
+      values = (Vector **) malloc(num * sizeof(Vector*));
+
+      int val = num;
+      int dim = v->simulation->dimension;
+      int jump = pow(dim, 2) / num;
+      int loc = 0, x,y;
+      while (val>0) {
+        loc += jump + (int)(rand() % 100);
+        x = loc % dim;
+        y = (loc / dim) % dim;
+        values[--val] = new_vector(x, y);
+      }
+
+      Vector **oldvalues = data->points;
+      int oldnum = data->num_points;
+
+      data->points = values;
+      data->num_points = num;
+
+      if (oldvalues != NULL) {
+        while (oldnum>0) 
+          del_vector(oldvalues[--oldnum]);
+        free(oldvalues);
+      }
+
+    }
+
+    isolines_draw_by_point(v, data->points, data->num_points);
  
   }
 
@@ -62,7 +103,7 @@ void
 isolines_draw_by_number(Visualization *v, int num) {
   Simulation_statistics *st = simulation_statistics(v->simulation);
   float max = st->max;
-  float min = st->min;
+  //float min = st->min;
   float mean = st->mean;
   float stepsize = log(max/mean) / num;
   int i = num - 1;
@@ -140,7 +181,7 @@ _draw_isoline_value(Visualization *v, float value) {
 
   glLineWidth(1);
   glBegin(GL_LINES);
-  visualization_set_color_palette(v, pow(value, 0.5));
+  visualization_set_color_palette(v, pow(value, 0.2));
 
   for (x = 0; x < dim - 1; x++) {
     for (y = 0; y < dim - 1; y++) {

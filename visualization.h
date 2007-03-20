@@ -49,6 +49,8 @@ typedef struct {
 
   Visualization_isolines_type isolines_type;
 
+  void *isolines_datapoints;
+
   int isolines_number;
 
   int scalar_coloring;

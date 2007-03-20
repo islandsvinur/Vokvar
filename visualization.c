@@ -49,6 +49,7 @@ new_visualization(int argc, char **argv, Simulation *s, int width, int height) {
 
   v->isolines_type = VIZ_ISO_BY_NUM;
   v->isolines_number = 16;
+  v->isolines_datapoints = NULL;
 
   v->scalar_coloring = 1;
 
