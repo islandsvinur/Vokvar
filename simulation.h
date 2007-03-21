@@ -10,7 +10,7 @@
 #define SDEBUG(...) DEBUG("simulation", __VA_ARGS__)
 
 typedef struct {
-  int32_t dimension;
+  int dimension;
 
   fftw_real *u,     *v;    /* (u,v) = velocity field */
   fftw_real *u0,    *v0;
@@ -26,11 +26,12 @@ typedef struct {
   float mean;
 } Simulation_statistics;
 
-Simulation *new_simulation(int32_t dimension);
+Simulation *new_simulation(int dimension);
 void simulation_destroy(Simulation *s);
 
 void simulation_set_forces(Simulation *s);
-void simulation_stable_solve(Simulation *s, fftw_real viscosity, fftw_real dt);
+void simulation_stable_solve(Simulation *s, 
+    fftw_real viscosity, fftw_real dt);
 void simulation_diffuse_matter(Simulation *s, fftw_real dt);
 Vector *simulation_interpolate_speed(Simulation *s, Vector *v);
 float *simulation_interpolate_density(Simulation *s, Vector *v);

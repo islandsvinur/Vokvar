@@ -61,7 +61,8 @@ typedef struct {
 } Visualization;
 
 
-Visualization *new_visualization(int argc, char **argv, Simulation *simulation, int width, int height);
+Visualization *new_visualization(int argc, char **argv, 
+    Simulation *simulation, int width, int height);
 void visualization_destroy(Visualization *v);
 
 void visualization_start(Visualization *v);
