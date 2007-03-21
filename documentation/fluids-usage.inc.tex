@@ -1,3 +1,45 @@
 % Usage
 
+Upon startup, \fluids\ is a black, square window. Use the mouse to click
+anywhere in the window and drag a little. Hereby, you are injecting fluid which
+will distribute and dissolve in the simulation.
+
+To control the visualization, the keyboard is used. These are the commands:
+
+\begin{itemize}
+  \item{1:} Switches the "smoke" on and off
+  \item{2:} Switches the speed vectors on and off
+  \item{3:} Switches the streamlines on and off
+  \item{4:} Switches the isolines on and off
+  \item{p:} Switches between palette (rainbow, less coloured rainbow, grayscales)
+  \item{o:} Switches between isolines method (by value, by number, by point)
+  \item{a:} Temporarily freeze simulation and animation
+  \item{f:} Switches to and from fullscreen view
+  \item{t/T:} Changes timestep
+  \item{s/S:} Changes scale of vectors and streamlines
+  \item{v/V:} Changes viscosity
+  \item{i/I:} Changes number of isolines
+  \item{q:} Quits \fluids\
+\end{itemize}
+
+\subsection{Compilation}
+
+If you want to compile \fluids\ yourself, you need to have the OpenGL and
+FFTW\footnote{\url{http://www.fftw.org/}} libraries and headers installed.
+
+In Debian, this is as simple as running the following the command:
+
+\texttt{\# aptitude install fftw3-dev freeglut3-dev}
+
+In Mac~OS~X, fftw is available from Fink\footnote{\url{http://fink.sourceforge.net/}}.
+
+\texttt{\# fink install fftw3}
+
+The OpenGL libraries should be installed with the system (otherwise most of the
+graphical user interface wouldn't work).
+
+After you installed the libraries, under Linux run \texttt{make -f
+Makefile.linux}, under Mac~OS~X run \texttt{make -f Makefile.macosx}.
+
+There should be a binary called \texttt{vokvar}, run it.
 

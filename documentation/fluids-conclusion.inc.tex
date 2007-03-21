@@ -1,7 +1,23 @@
 % Conclusion
 
 A working software tool was implemented, with streamlines and isolines. It was
-tested to run on both Linux and Mac~OS~X.
+tested to compile and run properly on both Debian~GNU/Linux and Mac~OS~X.
+
+The initial source code needed some cleanup first, when it was clear how it
+worked, the design process started and resulted in the separate modules as they
+are now. The example code wasn't very clean and extensible, so this caused some
+head breakage at first. Especially because of unfamiliarity with OpenGL and
+FFTW.
 
 \subsection{Limitations}
+
+Some ideas that have come up during development, but which were dismissed
+because of scope or time concerns.
+
+Two visualizations cannot both have a different palettes at the same time. This
+would be perfectly possible to implement, but usually one only uses one
+visualization at a time, so this won't be a big issue.
+
+Free placement of streamlines would have been cool, would however also create
+the need for an interface to the OpenGL drag handler to react on mouse events.
 
