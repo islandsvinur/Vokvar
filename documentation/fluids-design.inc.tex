@@ -3,3 +3,54 @@
 The \fluids\ component design is pretty straightforward. There are two main
 components; the simulation and the visualization. 
 
+\subsection{Simulation}
+
+The basic functionality of this part is given by the \texttt{fluids-example.c}
+file. A data structure called Simulation is created to hold the information
+together. The listings in this section are from the file \texttt{simulation.h}.
+
+\lstinputlisting[firstline=12,lastline=21]{../simulation.h}
+
+The function simulation\_statistics(Simulation *s) returns an object of type
+Simulation\_statistics.
+
+\lstinputlisting[firstline=23,lastline=27]{../simulation.h}
+
+Functions
+
+\lstinputlisting[firstline=29,lastline=40]{../simulation.h}
+
+\subsection{Visualization}
+
+Visualization type values
+
+\lstinputlisting[firstline=19,lastline=25]{../visualization.h}
+
+Isolines type enum
+
+\lstinputlisting[firstline=27,lastline=32]{../visualization.h}
+
+Visualization data struct
+
+\lstinputlisting[firstline=34,lastline=61]{../visualization.h}
+
+Functions
+
+\lstinputlisting[firstline=64,lastline=72]{../visualization.h}
+
+\subsubsection{Smoke}
+
+\lstinputlisting{../visualization/smoke.h}
+
+\subsubsection{Vectors}
+
+\lstinputlisting{../visualization/vectors.h}
+
+\subsubsection{Streamlines}
+
+\lstinputlisting{../visualization/streamlines.h}
+
+\subsubsection{Isolines}
+
+\lstinputlisting{../visualization/isolines.h}
+
