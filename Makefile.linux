@@ -5,8 +5,8 @@ INCLUDE = -I/usr/include/GL
 
 LIBS += -lglut
 
-fluids: $(OBJS)
+vokvar: $(OBJS)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 distclean: clean
-	rm fluids
+	rm vokvar

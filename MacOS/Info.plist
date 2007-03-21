@@ -5,15 +5,15 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>Fluids</string>
+	<string>Vökvar</string>
 	<key>CFBundleIconFile</key>
-	<string>Fluids</string>
+	<string>Icons</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.luijten.fluids</string>
+	<string>org.luijten.vokvar</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>Fluids</string>
+	<string>Vökvar</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 </dict>

@@ -23,14 +23,14 @@ $(NAME).dmg: wc.dmg $(NAME).app README
 $(NAME).zip: $(NAME).app
 	zip -r $(NAME)-$(VERSION).zip $(NAME).app
 
-$(NAME).app: fluids
+$(NAME).app: vokvar
 	$(INSTALL) -d $(NAME).app/Contents/Frameworks
 	$(INSTALL) -d $(NAME).app/Contents/MacOS
 	$(INSTALL) -d $(NAME).app/Contents/Resources
 	$(INSTALL) -d $(NAME).app/Contents/Resources/Source
-	$(INSTALL) $< $(NAME).app/Contents/MacOS
+	$(INSTALL) $< $(NAME).app/Contents/MacOS/$(NAME)
 	$(INSTALL) -m 644 Makefile *.c *.h $(NAME).app/Contents/Resources/Source
-	$(INSTALL) -m 644 MacOS/$(NAME).icns $(NAME).app/Contents/Resources
+	$(INSTALL) -m 644 MacOS/Icons.icns $(NAME).app/Contents/Resources
 	$(INSTALL) -m 644 MacOS/Info.plist $(NAME).app/Contents
 	$(INSTALL) $(FFTW_BASE)/lib/libdfftw.2.dylib $(FFTW_BASE)/lib/libdrfftw.2.dylib \
 		$(NAME).app/Contents/Frameworks
@@ -43,7 +43,7 @@ $(NAME).app: fluids
 	install_name_tool -change /sw/lib/libdrfftw.2.dylib \
 		@executable_path/../Frameworks/libdrfftw.2.dylib $(NAME).app/Contents/MacOS/$(NAME)
 
-fluids: $(OBJS)
+vokvar: $(OBJS)
 	$(CC) -o $@ $^ $(FRAMEWORK) $(CFLAGS) $(LIBPATH) $(LIBS) 
 
 temp.dmg: temp.dmg.bz2
@@ -60,5 +60,5 @@ wc.dmg: temp.dmg
 
 distclean: clean
 	rm -rf wc.dmg temp temp.dmg temp.dmg.bz2
-	rm -f fluids
+	rm -f vokvar
 	rm -rf $(NAME).zip $(NAME)-$(ARCH)-$(VERSION).dmg $(NAME).app

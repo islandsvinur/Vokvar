@@ -1,5 +1,5 @@
 
-NAME = Fluids
+NAME = Vökvar
 VERSION = 0.1.0
 RELEASENAME = Equinox
 ARCH = `uname -p`
@@ -21,7 +21,7 @@ LIBS = -lfftw -lrfftw -lm
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(INCLUDE)
 
-all: fluids
+all: vokvar
 
 .PHONY: clean
 
