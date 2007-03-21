@@ -1,3 +1,37 @@
 % Problems
 
+This section identifies the problems to be solved when implementing streamlines
+and isolines in \fluids{}.
+
+\subsection{Streamlines}
+
+To draw a perfect streamline, one has to calculate an integral for an absent
+function. In other words, this is impossible. The streamline can be
+approximated however by use of numerical integration. 
+
+There are various methods for doing this, Euler's and Runge-Kutta's techniques
+being the most famous. While Euler's method is known to be not very accurate
+when compared to Runge-Kutta's, the choice was put on the former.
+
+\subsection{Isolines}
+
+Isolines have the problem that it is impossible to determine the isovalues so
+that the whole window is evenly filled with lines.
+
+There are three ways of setting those values:
+
+\begin{itemize}
+
+\item By fixed value, simply a list of predefined ``clever'' values,
+independent of the dataset.
+
+\item By fixed number, taking the current maximal and minimal value of the
+dataset, dividing it into a set number of isovalues.
+
+\item By fixed points, taking a point in the dataset and determining the
+isoline running through it.
+
+\end{itemize}
+
+All three methods are implemented.
 
