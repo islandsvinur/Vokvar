@@ -17,7 +17,8 @@ $(NAME).dmg: wc.dmg $(NAME).app README
 	cp -a COPYING wc
 	WC_DEV=`hdiutil info | grep "wc" | grep "Apple_HFS" | awk '{print $$1}'` && \
 	hdiutil detach $$WC_DEV -quiet -force
-	hdiutil convert wc.dmg -quiet -format UDZO -imagekey zlib-level=9 -o "$(NAME)-$(ARCH)-$(VERSION).dmg"
+	hdiutil convert wc.dmg -quiet -format UDZO -imagekey zlib-level=9 \
+		-o "$(NAME)-$(ARCH)-$(VERSION).dmg"
 	rm -rf wc wc.dmg
 
 $(NAME).zip: $(NAME).app
@@ -27,9 +28,7 @@ $(NAME).app: vokvar
 	$(INSTALL) -d $(NAME).app/Contents/Frameworks
 	$(INSTALL) -d $(NAME).app/Contents/MacOS
 	$(INSTALL) -d $(NAME).app/Contents/Resources
-	$(INSTALL) -d $(NAME).app/Contents/Resources/Source
 	$(INSTALL) $< $(NAME).app/Contents/MacOS/$(NAME)
-	$(INSTALL) -m 644 Makefile *.c *.h $(NAME).app/Contents/Resources/Source
 	$(INSTALL) -m 644 MacOS/Icons.icns $(NAME).app/Contents/Resources
 	$(INSTALL) -m 644 MacOS/Info.plist $(NAME).app/Contents
 	$(INSTALL) $(FFTW_BASE)/lib/libdfftw.2.dylib $(FFTW_BASE)/lib/libdrfftw.2.dylib \
@@ -51,7 +50,8 @@ temp.dmg: temp.dmg.bz2
 
 temp.dmg.bz2:
 	mkdir temp
-	hdiutil create -size 10m temp.dmg -srcfolder temp -format UDRW -volname "$(NAME)-$(VERSION)" -verbose
+	hdiutil create -size 10m temp.dmg -srcfolder temp -format UDRW \
+		-volname "$(NAME)-$(VERSION)" -verbose
 	rmdir temp
 	bzip2 temp.dmg
 
