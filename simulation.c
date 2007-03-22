@@ -205,8 +205,8 @@ simulation_statistics(Simulation *s) {
 
   int i;
   int dim = pow(s->dimension, 2.0);
-  float max = -INFINITY;
-  float min = INFINITY;
+  float max = -HUGE_VAL;
+  float min = HUGE_VAL;
   float mean = 0.0;
 
   for (i = 0; i < dim; i++) {
