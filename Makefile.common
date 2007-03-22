@@ -1,5 +1,6 @@
 
 NAME = Vökvar
+SHORTNAME = vokvar
 VERSION = 1.0.0
 RELEASENAME = Equinox
 ARCH = `uname -p`
@@ -24,6 +25,16 @@ LIBS = -lfftw -lrfftw -lm
 all: vokvar
 
 .PHONY: clean
+
+release:
+	mkdir $(SHORTNAME)-$(VERSION)
+	mkdir $(SHORTNAME)-$(VERSION)/visualization
+	cp README COPYING $(SHORTNAME)-$(VERSION)
+	cp Makefile.* $(SHORTNAME)-$(VERSION)
+	cp *.c *.h $(SHORTNAME)-$(VERSION)
+	cp visualization/*.c visualization/*.h $(SHORTNAME)-$(VERSION)/visualization
+	tar cvzf $(SHORTNAME)-$(VERSION).tgz $(SHORTNAME)-$(VERSION)
+	rm -rf $(SHORTNAME)-$(VERSION)
 
 clean:
 	rm -f *.o visualization/*.o
