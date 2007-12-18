@@ -1,8 +1,8 @@
 
 NAME = Vökvar
 SHORTNAME = vokvar
-VERSION = 1.0.0
-RELEASENAME = Equinox
+VERSION = `cut -d ' ' -f 1 < VERSION`
+RELEASENAME = `cut -d ' ' -f 2 < VERSION`
 ARCH = `uname -p`
 
 CC = gcc
@@ -27,13 +27,13 @@ all: vokvar
 .PHONY: clean
 
 release:
-	mkdir $(SHORTNAME)-$(VERSION)
-	mkdir $(SHORTNAME)-$(VERSION)/visualization
-	cp README COPYING $(SHORTNAME)-$(VERSION)
-	cp Makefile.* $(SHORTNAME)-$(VERSION)
-	cp *.c *.h $(SHORTNAME)-$(VERSION)
-	cp visualization/*.c visualization/*.h $(SHORTNAME)-$(VERSION)/visualization
-	tar cvzf $(SHORTNAME)-$(VERSION).tgz $(SHORTNAME)-$(VERSION)
+	$(INSTALL) -d $(SHORTNAME)-$(VERSION)
+	$(INSTALL) -d $(SHORTNAME)-$(VERSION)/visualization
+	$(INSTALL) README COPYING VERSION $(SHORTNAME)-$(VERSION)
+	$(INSTALL) Makefile.* $(SHORTNAME)-$(VERSION)
+	$(INSTALL) *.c *.h $(SHORTNAME)-$(VERSION)
+	$(INSTALL) visualization/*.c visualization/*.h $(SHORTNAME)-$(VERSION)/visualization
+	tar czf $(SHORTNAME)-$(VERSION)-$(RELEASENAME)-src.tgz $(SHORTNAME)-$(VERSION)
 	rm -rf $(SHORTNAME)-$(VERSION)
 
 clean:
